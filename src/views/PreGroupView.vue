@@ -4,6 +4,6 @@ import TheWelcome from '../components/TheWelcome.vue'
 
 <template>
   <main>
-      第一轮
+      初始页面，需要一张主图
   </main>
 </template>
