@@ -1,17 +1,23 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-import FirstRoundView from "@/views/SecondRound/SecondRoundView.vue";
-import SecondRoundView from "@/views/SecondRound/SecondRoundView.vue";
-</script>
+
 
 <template>
-  <RouterView class="m-main"/>
+  <div class="main"><RouterView/></div>
 </template>
 
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router'
+
+</script>
+
 <style scoped>
-.m-main{
-    height: fit-content;
-    width: fit-content;
+.main {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
 }
+
 </style>

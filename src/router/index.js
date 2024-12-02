@@ -10,6 +10,11 @@ const router = createRouter({
       component: StartView,
     },
     {
+      path: '/PreGround',
+      name: 'PreGround',
+      component: () => import('../views/PreGroupView.vue'),
+    },
+    {
       path: '/FirstRound/FirstRoundView',
       name: 'FirstRound',
       // route level code-splitting
