@@ -58,6 +58,42 @@
   </div>
 </template>
 
+
+
+<script setup>
+
+const bgm = "bgm_name"
+const leftPlayer = {'url':'','name':'选手7','score':0, 'skill': ''}
+const rightPlayer = {'url':'','name':'选手23','score':0, 'skill': ''}
+const skillPool = []
+const isSelect = true
+
+console.log(skillPool)
+
+for (let i = 0; i < 12; i++) {
+  const rowIndex = Math.floor(i / 3);
+  if (!skillPool[rowIndex]) {
+    skillPool[rowIndex] = {};
+  }
+  skillPool[rowIndex][`skill${(i % 3) + 1}`] = i + 1;
+}
+
+const headerCellStyle = () => {
+  return{
+    backgroundColor: '#c7c7c7',
+    color: 'black',
+    borderColor: '#c7c7c7'
+  }
+}
+
+
+const bgmPool = [
+  [1, 2, 3, 4],
+  [5, 6, 7, 8],
+  [9, 10, 11, 12]
+];
+</script>
+
 <style>
 .nextBt,.stopLoopBt {
   display: flex;
@@ -202,37 +238,3 @@
 
 
 </style>
-
-<script setup>
-
-const bgm = "bgm_name"
-const leftPlayer = {'url':'','name':'选手7','score':0, 'skill': ''}
-const rightPlayer = {'url':'','name':'选手23','score':0, 'skill': ''}
-const skillPool = []
-const isSelect = true
-
-console.log(skillPool)
-
-for (let i = 0; i < 12; i++) {
-  const rowIndex = Math.floor(i / 3);
-  if (!skillPool[rowIndex]) {
-    skillPool[rowIndex] = {};
-  }
-  skillPool[rowIndex][`skill${(i % 3) + 1}`] = i + 1;
-}
-
-const headerCellStyle = () => {
-  return{
-    backgroundColor: '#c7c7c7',
-    color: 'black',
-    borderColor: '#c7c7c7'
-  }
-}
-
-
-const bgmPool = [
-  [1, 2, 3, 4],
-  [5, 6, 7, 8],
-  [9, 10, 11, 12]
-];
-</script>

@@ -55,7 +55,7 @@ const router = createRouter({
       component: () => import('../views/ThirdRound/ThirdRoundView.vue'),
     },
     {
-      path: '/ThirdRound/ThirdRoundView',
+      path: '/ThirdRound/ThirdRoundWinnerListView',
       name: 'ThirdRoundWinnerList',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -71,7 +71,7 @@ const router = createRouter({
       component: () => import('../views/Finals/Finals.vue'),
     },
     {
-      path: '/Finals/Finals',
+      path: '/Finals/FinalsWinnerList',
       name: 'FinalsWinnerList',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route

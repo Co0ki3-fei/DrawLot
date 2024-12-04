@@ -44,6 +44,26 @@
   </div>
 </template>
 
+
+<script setup>
+
+const group = "A"
+const bgm = "bgm_name"
+const leftPlayer = {'url':'','name':'选手7','score':0, 'skill': ''}
+const rightPlayer = {'url':'','name':'选手23','score':0, 'skill': ''}
+const skillPool = []
+
+console.log(skillPool)
+
+for (let i = 0; i < 12; i++) {
+  const rowIndex = Math.floor(i / 3);
+  if (!skillPool[rowIndex]) {
+    skillPool[rowIndex] = {};
+  }
+  skillPool[rowIndex][`skill${(i % 3) + 1}`] = i + 1;
+}
+</script>
+
 <style>
 .nextBt {
   display: flex;
@@ -245,22 +265,3 @@
   width: 50%;
 }
 </style>
-
-<script setup>
-
-const group = "A"
-const bgm = "bgm_name"
-const leftPlayer = {'url':'','name':'选手7','score':0, 'skill': ''}
-const rightPlayer = {'url':'','name':'选手23','score':0, 'skill': ''}
-const skillPool = []
-
-console.log(skillPool)
-
-for (let i = 0; i < 12; i++) {
-  const rowIndex = Math.floor(i / 3);
-  if (!skillPool[rowIndex]) {
-    skillPool[rowIndex] = {};
-  }
-  skillPool[rowIndex][`skill${(i % 3) + 1}`] = i + 1;
-}
-</script>
