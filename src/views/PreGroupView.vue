@@ -109,6 +109,10 @@
 </style>
 
 <script setup lang="ts">
+defineOptions({
+  name: "PreGroupView",
+  inheritAttrs: false
+})
 import { UserFilled } from '@element-plus/icons-vue';
 
 const infos = [{"name":"test1"},{"name":"test2"},{"name":"test3"},{"name":"test4"},{"name":"test5"},{"name":"test6"},{"name":"test7"},{"name":"test8"},{"name":"test9"},{"name":"test10"}]
