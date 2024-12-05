@@ -27,4 +27,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  build: {
+    assetsDir: 'assets',  // Optional: Customizing the assets directory in the build output
+  },
 })
