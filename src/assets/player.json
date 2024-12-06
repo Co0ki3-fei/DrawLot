@@ -1,0 +1,194 @@
+[
+	{
+		"playerId": 1,
+		"name": "选手1",
+		"isBetter": false,
+		"avatar": "/src/assets/001.jpg"
+	},
+	{
+		"playerId": 2,
+		"name": "选手2",
+		"isBetter": false,
+		"avatar": "/src/assets/002.jpg"
+	},
+	{
+		"playerId": 3,
+		"name": "选手3",
+		"isBetter": false,
+		"avatar": "/src/assets/003.jpg"
+	},
+	{
+		"playerId": 4,
+		"name": "选手4",
+		"isBetter": false,
+		"avatar": "/src/assets/004.jpg"
+	},
+	{
+		"playerId": 5,
+		"name": "选手5",
+		"isBetter": false,
+		"avatar": "/src/assets/005.jpg"
+	},
+	{
+		"playerId": 6,
+		"name": "选手6",
+		"isBetter": false,
+		"avatar": "/src/assets/006.jpg"
+	},
+	{
+		"playerId": 7,
+		"name": "选手7",
+		"isBetter": false,
+		"avatar": "/src/assets/007.jpg"
+	},
+	{
+		"playerId": 8,
+		"name": "选手8",
+		"isBetter": false,
+		"avatar": "/src/assets/008.jpg"
+	},
+	{
+		"playerId": 9,
+		"name": "选手9",
+		"isBetter": false,
+		"avatar": "/src/assets/009.jpg"
+	},
+	{
+		"playerId": 10,
+		"name": "选手10",
+		"isBetter": false,
+		"avatar": "/src/assets/010.jpg"
+	},
+	{
+		"playerId": 11,
+		"name": "选手11",
+		"isBetter": false,
+		"avatar": "/src/assets/011.jpg"
+	},
+	{
+		"playerId": 12,
+		"name": "选手12",
+		"isBetter": false,
+		"avatar": "/src/assets/012.jpg"
+	},
+	{
+		"playerId": 13,
+		"name": "选手13",
+		"isBetter": false,
+		"avatar": "/src/assets/013.jpg"
+	},
+	{
+		"playerId": 14,
+		"name": "选手14",
+		"isBetter": false,
+		"avatar": "/src/assets/014.jpg"
+	},
+	{
+		"playerId": 15,
+		"name": "选手15",
+		"isBetter": false,
+		"avatar": "/src/assets/015.jpg"
+	},
+	{
+		"playerId": 16,
+		"name": "选手16",
+		"isBetter": false,
+		"avatar": "/src/assets/016.jpg"
+	},
+	{
+		"playerId": 17,
+		"name": "选手17",
+		"isBetter": true,
+		"avatar": "/src/assets/017.jpg"
+	},
+	{
+		"playerId": 18,
+		"name": "选手18",
+		"isBetter": true,
+		"avatar": "/src/assets/018.jpg"
+	},
+	{
+		"playerId": 19,
+		"name": "选手19",
+		"isBetter": true,
+		"avatar": "/src/assets/019.jpg"
+	},
+	{
+		"playerId": 20,
+		"name": "选手20",
+		"isBetter": true,
+		"avatar": "/src/assets/020.jpg"
+	},
+	{
+		"playerId": 21,
+		"name": "选手21",
+		"isBetter": true,
+		"avatar": "/src/assets/021.jpg"
+	},
+	{
+		"playerId": 22,
+		"name": "选手22",
+		"isBetter": true,
+		"avatar": "/src/assets/022.jpg"
+	},
+	{
+		"playerId": 23,
+		"name": "选手23",
+		"isBetter": true,
+		"avatar": "/src/assets/023.jpg"
+	},
+	{
+		"playerId": 24,
+		"name": "选手24",
+		"isBetter": true,
+		"avatar": "/src/assets/024.jpg"
+	},
+	{
+		"playerId": 25,
+		"name": "选手25",
+		"isBetter": true,
+		"avatar": "/src/assets/025.jpg"
+	},
+	{
+		"playerId": 26,
+		"name": "选手26",
+		"isBetter": true,
+		"avatar": "/src/assets/026.jpg"
+	},
+	{
+		"playerId": 27,
+		"name": "选手27",
+		"isBetter": true,
+		"avatar": "/src/assets/027.jpg"
+	},
+	{
+		"playerId": 28,
+		"name": "选手28",
+		"isBetter": true,
+		"avatar": "/src/assets/028.jpg"
+	},
+	{
+		"playerId": 29,
+		"name": "选手29",
+		"isBetter": true,
+		"avatar": "/src/assets/029.jpg"
+	},
+	{
+		"playerId": 30,
+		"name": "选手30",
+		"isBetter": true,
+		"avatar": "/src/assets/030.jpg"
+	},
+	{
+		"playerId": 31,
+		"name": "选手31",
+		"isBetter": true,
+		"avatar": "/src/assets/031.jpg"
+	},
+	{
+		"playerId": 32,
+		"name": "选手32",
+		"isBetter": true,
+		"avatar": "/src/assets/032.jpg"
+	}
+]

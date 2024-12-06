@@ -1,37 +1,41 @@
 <template>
   <el-row :gutter="20">
+
     <el-col :span="8" class="part1">
-      <div class="body" v-for="(info,index) in infosPartOne" :key="index" 
-      :class="{'highlighted': index === highlightedLeftIndex && !info.isSelect, 'gray': info.isSelect}">
+      <div class="body" v-for="(info,index) in infosPartUpper" :key="index"
+           :class="{'highlighted': index === highlightedLeftIndex && !info.isSelect, 'gray': info.isSelect}">
         <div class="form">
-        <el-image :src="info.url" :alt="info.name"></el-image>
-        <el-text class="id">{{ index+1 }}</el-text>
-        <el-text class="name">{{ info.name }}</el-text>
+          <el-image :src="info.avatar" :alt="info.name"></el-image>
+          <el-text class="id">{{ index + 1 }}</el-text>
+          <el-text class="name">{{ info.name }}</el-text>
         </div>
       </div>
     </el-col>
+
     <el-col :span="8" class="part2">
-        <div class="mid-part" v-for="index in compGroupLeft.length" :key="index">
-        <div class="part1_id">{{ compGroupLeft[index-1]?.name }}</div>
+      <div class="mid-part" v-for="index in compGroupLeft.length" :key="index">
+        <div class="part1_id">{{ compGroupLeft[index - 1]?.name }}</div>
         <div class="group_id">{{ String.fromCharCode(65 + index - 1) }}</div>
-        <div class="part3_id">{{ compGroupRight[index-1]?.name }}</div>
+        <div class="part3_id">{{ compGroupRight[index - 1]?.name }}</div>
       </div>
       <div>
-        <el-button @click="nextGroupHandle" v-if="compGroupLeft.length < 16">下一组</el-button>
-        <el-button @click="fistRound" v-if="compGroupLeft.length === 16">第一轮·半区对决</el-button>
+        <el-button @click="nextGroupHandle" v-if="randomRound < 16">下一组</el-button>
+        <el-button @click="fistRound" v-if="randomRound === 16">第一轮·半区对决</el-button>
       </div>
     </el-col>
+
     <el-col :span="8" class="part3">
-      <div class="body" v-for="(info,index) in infosPartTwo" 
-      :class="{'highlighted': index === highlightedRightIndex && !info.isSelect, 'gray': info.isSelect}" 
+      <div class="body" v-for="(info,index) in infosPartDowner"
+           :class="{'highlighted': index === highlightedRightIndex && !info.isSelect, 'gray': info.isSelect}"
       >
         <div class="form">
-        <el-image :src="info.url" :alt="info.name"></el-image>
-        <el-text class="id">{{ index+17 }}</el-text>
-        <el-text class="name">{{ info.name }}</el-text>
+          <el-image :src="info.avatar" :alt="info.name"></el-image>
+          <el-text class="id">{{ index + 17 }}</el-text>
+          <el-text class="name">{{ info.name }}</el-text>
         </div>
       </div>
     </el-col>
+
   </el-row>
 </template>
 
@@ -60,10 +64,10 @@
 }
 
 .form .el-image {
-  width: 50px;      /* 设置宽度 */
-  height: 50px;     /* 设置高度 */
-  border-radius: 50%;  /* 圆形样式 */
-  overflow: hidden;   /* 防止图片溢出 */
+  width: 50px; /* 设置宽度 */
+  height: 50px; /* 设置高度 */
+  border-radius: 50%; /* 圆形样式 */
+  overflow: hidden; /* 防止图片溢出 */
 }
 
 .id {
@@ -132,9 +136,10 @@
 </style>
 
 <script setup>
-import {ref, onMounted, computed } from 'vue'
-import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
+import {ref, onMounted, computed} from 'vue'
+import {useStore} from 'vuex';
+import {useRouter} from 'vue-router';
+import players from '@/assets/player.json'
 
 defineOptions({
   name: "PreGroupView",
@@ -143,56 +148,71 @@ defineOptions({
 
 const router = useRouter();
 const store = useStore();
-const compGroupLeft = computed(() => store.getters['group/compGroupLeft']);
-const compGroupRight = computed(() => store.getters['group/compGroupRight']);
 
+const compGroup = computed(() => store.getters['group/compGroup']);
 
+const compGroupLeft = ref([])
+const compGroupRight = ref([])
 /**
  * init data
  * get player image
  */
 const images = import.meta.glob('@/assets/*.jpg');
 const infos = ref([])
-const loading = ref(true); 
-const infosPartOne = ref([])
-const infosPartTwo = ref([])
-const playerNames = Array.from({ length: 32 }, (_, i) => `选手${i + 1}`);
+const loading = ref(true)
+const infosPartUpper = ref([])
+const infosPartDowner = ref([])
+const randomRound = ref(0)
+
+
 onMounted(async () => {
   try {
-    const loadedImages = await Promise.all(
+    await Promise.all(
       Object.keys(images).map((path) => {
         const loadImage = images[path];
-        return loadImage().then((module) => module.default); 
+        return loadImage().then((module) => module.default);
       })
     );
 
-    infos.value = playerNames.map((name, index) => ({
-      name,
-      url: loadedImages[index] || '', 
-      score: 0,
-      skill: ''
-    }));
+    infos.value = players.map((player) => {
+      let info = {
+        playerId: player.playerId,
+        name: player.name,
+        isBetter: player.isBetter,
+        avatar: player.avatar,
 
-    infosPartOne.value = infos.value.slice(0, 16).map((item) => ({
-      name: item.name,
-      url: item.url,
-      score: item.score,
-      skill: '',
-      isSelect: false
-    }));
+        firstRoundGroup: -1, /*0~15对应A~P*/
+        isFirstWinner: false,
 
-    infosPartTwo.value = infos.value.slice(16).map((item) => ({
-      name: item.name,
-      url: item.url,
-      score: item.score,
-      skill: '',
-      isSelect: false
-    }));
+        secondRoundScore: 0,
+        secondRoundOrder: 0,
+        isSecondWinner: false,
+
+        thirdRoundScore: 0,
+        thirdRoundOrder: 0,
+        isThirdWinner: false,
+
+        finalScore: 0,
+        finalOrder: 0,
+        isFinalWinner: false,
+      }
+
+      store.dispatch('group/addToGroup', info)
+
+      return info
+    });
+
+    infosPartUpper.value = infos.value.filter((item) => {
+      return  item.isBetter
+    });
+    infosPartDowner.value = infos.value.filter((item) => {
+      return  !item.isBetter
+    });
 
     loading.value = false;
   } catch (error) {
     console.error('图片加载失败', error);
-    loading.value = false; 
+    loading.value = false;
   }
 });
 
@@ -204,50 +224,57 @@ const isRandomScroll = ref(false);
 const highlightedLeftIndex = ref(null); // 用于存储当前高亮左侧元素的索引
 const highlightedRightIndex = ref(null); // 用于存储当前高亮右侧元素的索引
 async function nextGroupHandle() {
-  if (store.state.group.compGroupLeft.length === 16) {
+  if (randomRound.value === 16 || isRandomScroll.value) {
     return;
   }
 
   isRandomScroll.value = true;
   console.log('轮播开始');
   randomScroll();
-  await delay(1000); // 等待 3 秒
+  await delay(300); // 等待 3 秒
   console.log('轮播结束');
   isRandomScroll.value = false;
-  
+
+  store.dispatch('group/updateGroupFirstRoundGroup', {playerId:infosPartUpper.value.at(highlightedLeftIndex.value).playerId, firstRoundGroup: randomRound.value})
+  store.dispatch('group/updateGroupFirstRoundGroup', {playerId:infosPartDowner.value.at(highlightedRightIndex.value).playerId, firstRoundGroup: randomRound.value})
+
   // 随机选择选手
-  const selectedFromPartOne = infosPartOne.value.at(highlightedLeftIndex.value);
-  const selectedFromPartTwo = infosPartTwo.value.at(highlightedRightIndex.value);
+  const selectedFromPartOne = infosPartUpper.value.at(highlightedLeftIndex.value);
+  const selectedFromPartTwo = infosPartDowner.value.at(highlightedRightIndex.value);
 
   // 将选手放入分组中
-
-  store.dispatch('group/addToGroupLeft', selectedFromPartOne);
-  store.dispatch('group/addToGroupRight', selectedFromPartTwo);
+  compGroupLeft.value.push(selectedFromPartOne)
+  compGroupRight.value.push(selectedFromPartTwo)
 
   // 标志已成组的选手
-  infosPartOne.value.at(highlightedLeftIndex.value).isSelect = true;
-  infosPartTwo.value.at(highlightedRightIndex.value).isSelect = true;
+  infosPartUpper.value.at(highlightedLeftIndex.value).isSelect = true;
+  infosPartDowner.value.at(highlightedRightIndex.value).isSelect = true;
 
+  console.log({playerId:highlightedLeftIndex.value, firstRoundGroup: randomRound.value})
+  console.log({playerId:highlightedRightIndex.value, firstRoundGroup: randomRound.value})
+  console.log(store.getters['group/compGroup'])
+
+  randomRound.value = randomRound.value+1
 
 }
 
 function randomScroll() {
   const interval = setInterval(() => {
     if (!isRandomScroll.value) {
-      clearInterval(interval); 
+      clearInterval(interval);
       return;
     }
 
-    highlightedLeftIndex.value = getRandomIndex(infosPartOne.value);
-    highlightedRightIndex.value = getRandomIndex(infosPartTwo.value);
-  }, 300); 
+    highlightedLeftIndex.value = getRandomIndex(infosPartUpper.value);
+    highlightedRightIndex.value = getRandomIndex(infosPartDowner.value);
+  }, 150);
 }
 
 function getRandomIndex(arr) {
   let index;
   do {
     index = Math.floor(Math.random() * arr.length);
-  } while (arr[index].isSelect); 
+  } while (arr[index].isSelect);
   return index;
 }
 
@@ -262,14 +289,13 @@ function delay(ms) {
 function fistRound() {
   router.push('/FirstRound/FirstRoundView');
   nextTick(() => {
-  const part1 = document.querySelector('.part1');
-  const part3 = document.querySelector('.part3');
-  
-  if (part1 && part3) {
-    part1.style.height = 'auto';
-    part3.style.height = 'auto';
-  }
+    const part1 = document.querySelector('.part1');
+    const part3 = document.querySelector('.part3');
+
+    if (part1 && part3) {
+      part1.style.height = 'auto';
+      part3.style.height = 'auto';
+    }
   });
-  return;
 }
 </script>

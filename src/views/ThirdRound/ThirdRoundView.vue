@@ -2,7 +2,7 @@
   <div class="second-round">
     <div class="nextBt">
       <el-button>下一组</el-button>
-      
+
     </div>
     <div class="body">
       <div class="title">八强对决</div>
@@ -10,20 +10,20 @@
       <div class="player-form">
         <div class="left-player">
           <div class="lp-part1">
-            <el-image :src="leftPlayer.url" style="width: 150px; height: 200px" :fit="none"></el-image>
+            <el-image :src="leftPlayer.avatar" style="width: 150px; height: 200px" :fit="none"></el-image>
             <el-text>{{ leftPlayer.name }}</el-text>
           </div>
         </div>
         <div class="score">
           <div class="score-txt">VS</div>
-          <div class="score-res">{{ leftPlayer.score }}:{{ rightPlayer.score }}</div>
+          <div class="score-res">{{ leftPlayer.firstRoundScore }}:{{ rightPlayer.firstRoundScore }}</div>
         </div>
         <div class="right-player">
           <div class="select-player" v-if="!isSelect">
             选择选手
           </div>
           <div class="lp-part1" v-if="isSelect">
-            <el-image :src="rightPlayer.url" style="width: 150px; height: 200px" :fit="none"></el-image>
+            <el-image :src="rightPlayer.avatar" style="width: 150px; height: 200px" :fit="none"></el-image>
             <el-text>{{ rightPlayer.name }}</el-text>
           </div>
         </div>
@@ -60,8 +60,8 @@
 <script setup>
 
 const bgm = "bgm_name"
-const leftPlayer = {'url':'','name':'选手7','score':0, 'skill': ''}
-const rightPlayer = {'url':'','name':'选手23','score':0, 'skill': ''}
+const leftPlayer = {'avatar':'','name':'选手7','firstRoundScore':0, 'skill': ''}
+const rightPlayer = {'avatar':'','name':'选手23','firstRoundScore':0, 'skill': ''}
 const skillPool = []
 const isSelect = true
 
@@ -94,7 +94,7 @@ const bgmPool = [
 <style>
 .nextBt,.stopLoopBt {
   display: flex;
-  justify-content: flex-end; 
+  justify-content: flex-end;
   padding-top: 2%;
   padding-right: 2%;
 }
@@ -229,7 +229,7 @@ const bgmPool = [
 .pp-table, .bp-table {
   height: 100%;  /* 表格高度自动填充父容器 */
   width: 70%;
-  
+
 }
 
 .bgm-pool {
