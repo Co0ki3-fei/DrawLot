@@ -1,66 +1,247 @@
 <template>
   <div class="page">
     <div class="nextBt">
-      <el-button>下一组</el-button>
+      <el-button @click="nextGroup">下一组</el-button>
     </div>
     <div class="body">
       <div class="title">三十二强对决 - {{ group }} 组对决</div>
       <div class="bgm">BGM: {{ bgm }}</div>
       <div class="player-form">
+
+
         <div class="left-player">
           <div class="lp-part1">
-            <el-image :src="leftPlayer.url" style="width: 150px; height: 200px" :fit="none"></el-image>
-            <el-text>{{ leftPlayer.name }}</el-text>
+            <el-image :src="leftPlayer.url" style="width: 150px; height: 200px" @click="setLeftPlayerScore"></el-image>
+            <el-text @click="setLeftPlayerScore">{{ leftPlayer.name }}</el-text>
           </div>
-          <el-button  class="lp-skill">
-            <el-text>选用技:</el-text>
-          </el-button>
+          <el-dropdown placement="bottom-start" @command="handleLeftPlayerSkillChange">
+            <el-button class="rp-skill"> <el-text>选用技:</el-text> {{ leftPlayer.skill }}</el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <!-- 使用 v-for 动态生成下拉菜单项 -->
+                <el-dropdown-item
+                  v-for="(skill,index) in skills"
+                  :key="index"
+                  :command="skill"
+                >
+                   {{ skill }}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
+
+
         <div class="score">
           <div class="score-txt">VS</div>
           <div class="score-res">{{ leftPlayer.score }}:{{ rightPlayer.score }}</div>
         </div>
+
+
         <div class="right-player">
           <div class="rp-part1">
-            <el-image :src="rightPlayer.url" style="width: 150px; height: 200px" :fit="none"></el-image>
-          <el-text>{{ rightPlayer.name }}</el-text>
+            <el-image :src="rightPlayer.url" style="width: 150px; height: 200px" @click="setRightPlayerScore"></el-image>
+          <el-text @click="setRightPlayerScore">{{ rightPlayer.name }}</el-text>
           </div>
-          <el-button class="rp-skill">
-            <el-text>选用技:</el-text>
-          </el-button>
+          <el-dropdown placement="bottom-start" @command="handleRightPlayerSkillChange">
+            <el-button class="rp-skill"> <el-text>选用技:</el-text>{{ rightPlayer.skill }} </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <!-- 使用 v-for 动态生成下拉菜单项 -->
+                <el-dropdown-item
+                  v-for="(skill,index) in skills"
+                  :key="index"
+                  :command="skill"
+                >
+                   {{ skill }}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </div>
       <div class="skill" >
         <div class="skill-title">技池</div>
         <div class="skill-pool">
           <el-table :data="skillPool" border style="width: 100%;" :show-header="false">
-            <el-table-column prop="skill1"/>
-            <el-table-column prop="skill2"/>
-            <el-table-column prop="skill3"/>
+            <el-table-column label="Column 1" align="center">
+              <template #default="{ row }">
+                <span>{{ row[0] }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Column 2" align="center">
+              <template #default="{ row }">
+                <span>{{ row[1] }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Column 3"  align="center">
+              <template #default="{ row }">
+                <span>{{ row[2] }}</span>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
       </div>
     </div>
+
+     <!-- dialog for Left Player -->
+     <el-dialog v-model="leftPlayerDialogVisible" title="修改胜场" @close="closeLeftPlayerDialog">
+        <el-button @click="increaseLeftPlayerScore">增加胜场</el-button>
+        <el-button @click="decreaseLeftPlayerScore">减少胜场</el-button>
+      </el-dialog>
+
+     
+
+    <!-- dialog for Right Player -->
+    <el-dialog v-model="rightPlayerDialogVisible" title="修改胜场" @close="closeRightPlayerDialog">
+    <el-button @click="increaseRightPlayerScore">增加胜场</el-button>
+    <el-button @click="decreaseRightPlayerScore">减少胜场</el-button>
+    </el-dialog>
   </div>
+
+     
 </template>
 
 
 <script setup>
+import {ref, computed } from 'vue'
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
-const group = "A"
-const bgm = "bgm_name"
-const leftPlayer = {'url':'','name':'选手7','score':0, 'skill': ''}
-const rightPlayer = {'url':'','name':'选手23','score':0, 'skill': ''}
-const skillPool = []
+const router = useRouter();
+const store = useStore();
 
-console.log(skillPool)
+// test
+// const leftPlayer = {'name': '1','url':'',"score":0}
+// const rightPlayer = {'name': '1','url':'',"score":0}
 
-for (let i = 0; i < 12; i++) {
-  const rowIndex = Math.floor(i / 3);
-  if (!skillPool[rowIndex]) {
-    skillPool[rowIndex] = {};
+const compGroupLeft = computed(() => store.getters['group/compGroupLeft']);
+const compGroupRight = computed(() => store.getters['group/compGroupRight']);
+const bgms = computed(() => store.getters['group/getBgm']);
+
+
+const currentIndex = ref(0);
+const group = ref(String.fromCharCode(65 + currentIndex.value))
+
+const bgm = computed(() => {
+  return bgms.value && bgms.value[currentIndex.value] ? bgms.value[currentIndex.value] : "bgm_name";
+});
+
+const leftPlayer = computed(() => {
+  return compGroupLeft.value && compGroupLeft.value[currentIndex.value] ? compGroupLeft.value[currentIndex.value] : {'name': '123','url':'',"score":0};
+});
+
+const rightPlayer = computed(() => {
+  return compGroupRight.value && compGroupRight.value[currentIndex.value] ? compGroupRight.value[currentIndex.value] : {'name': '123','url':'',"score":0};
+});
+
+const skills = computed(() => store.state.skillPool)
+console.log(skills.value)
+const skillPool = ref([])
+const hasWinner = computed(() => leftPlayer.value.score >= 2 || rightPlayer.value.score >= 2)
+
+
+const chunkSize = 3;
+skillPool.value = chunkArray(skills.value, chunkSize);
+
+function chunkArray(arr, size) {
+  let result = [];
+  for (let i = 0; i < arr.length; i += size) {
+    result.push(arr.slice(i, i + size));
   }
-  skillPool[rowIndex][`skill${(i % 3) + 1}`] = i + 1;
+  return result;
+}
+
+function nextGroup() {
+  
+  console.log(leftPlayer.value.score)
+  console.log(rightPlayer.value.score)
+  console.log(hasWinner.value)
+  if (!hasWinner.value) return
+  console.log(1)
+  
+  if(leftPlayer.value.score > rightPlayer.value.score) {
+    store.dispatch('group/addToFistRoundWinners', leftPlayer);
+  } else {
+    store.dispatch('group/addToFistRoundWinners', rightPlayer);
+  }
+
+  
+
+  const fistRoundWinnerList = computed(() => store.getters['group/fistRoundWinners']);
+  console.log(fistRoundWinnerList.value)
+  group.value = String.fromCharCode(65 + currentIndex.value)
+  
+  console.log( currentIndex.value)
+  console.log(group)
+  if(currentIndex.value === 2) {
+    router.push('/FirstRound/FirstRoundWinnerListView');
+    return;
+  }
+
+  currentIndex.value += 1
+}
+
+// Dialog visibility
+const leftPlayerDialogVisible = ref(false);
+const rightPlayerDialogVisible = ref(false);
+
+// 打开左侧选手的对话框
+function setLeftPlayerScore() {
+  leftPlayerDialogVisible.value = true;
+  console.log(1)
+  console.log(leftPlayerDialogVisible.value)
+}
+
+// 打开右侧选手的对话框
+function setRightPlayerScore() {
+  rightPlayerDialogVisible.value = true;
+}
+
+// 关闭左侧选手的对话框
+function closeLeftPlayerDialog() {
+  leftPlayerDialogVisible.value = false;
+}
+
+// 关闭右侧选手的对话框
+function closeRightPlayerDialog() {
+  rightPlayerDialogVisible.value = false;
+}
+
+// 增加左侧选手胜场
+function increaseLeftPlayerScore() {
+  leftPlayer.value.score += 1;
+  closeLeftPlayerDialog();
+}
+
+// 减少左侧选手胜场
+function decreaseLeftPlayerScore() {
+  leftPlayer.value.score -= 1;
+  closeLeftPlayerDialog();
+}
+
+// 增加右侧选手胜场
+function increaseRightPlayerScore() {
+  rightPlayer.value.score += 1;
+  closeRightPlayerDialog();
+}
+
+// 减少右侧选手胜场
+function decreaseRightPlayerScore() {
+  rightPlayer.value.score -= 1;
+  closeRightPlayerDialog();
+}
+
+// 处理左侧选手技能变化
+function handleLeftPlayerSkillChange(skill) {
+  leftPlayer.value.skill = skill;
+  console.log('左侧选手技能已更改为:', skill);
+}
+
+// 处理右侧选手技能变化
+function handleRightPlayerSkillChange(skill) {
+  rightPlayer.value.skill = skill;
+  console.log('右侧选手技能已更改为:', skill);
 }
 </script>
 
@@ -138,7 +319,7 @@ for (let i = 0; i < 12; i++) {
   border: none;
   position: relative;
   width: 100%;
-  padding: 10%
+  padding: 10%;
 }
 
 .lp-skill .el-text {
@@ -157,7 +338,7 @@ for (let i = 0; i < 12; i++) {
   position: absolute;
   left: 0;
   bottom: 0;
-  width: 300%;
+  width: 100%;
   height: 2px; 
   background-color: currentColor;
 }

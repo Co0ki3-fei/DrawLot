@@ -143,20 +143,20 @@ defineOptions({
 
 const router = useRouter();
 const store = useStore();
+const compGroupLeft = computed(() => store.getters['group/compGroupLeft']);
+const compGroupRight = computed(() => store.getters['group/compGroupRight']);
+
+
+/**
+ * init data
+ * get player image
+ */
 const images = import.meta.glob('@/assets/*.jpg');
 const infos = ref([])
 const loading = ref(true); 
 const infosPartOne = ref([])
 const infosPartTwo = ref([])
-const compGroupLeft = computed(() => store.getters['group/compGroupLeft']);
-const compGroupRight = computed(() => store.getters['group/compGroupRight']);
-const buttonText = ref('下一组')
-const highlightedLeftIndex = ref(null); // 用于存储当前高亮左侧元素的索引
-const highlightedRightIndex = ref(null); // 用于存储当前高亮右侧元素的索引
-
-
 const playerNames = Array.from({ length: 32 }, (_, i) => `选手${i + 1}`);
-
 onMounted(async () => {
   try {
     const loadedImages = await Promise.all(
@@ -169,13 +169,15 @@ onMounted(async () => {
     infos.value = playerNames.map((name, index) => ({
       name,
       url: loadedImages[index] || '', 
-      score: 0
+      score: 0,
+      skill: ''
     }));
 
     infosPartOne.value = infos.value.slice(0, 16).map((item) => ({
       name: item.name,
       url: item.url,
       score: item.score,
+      skill: '',
       isSelect: false
     }));
 
@@ -183,6 +185,7 @@ onMounted(async () => {
       name: item.name,
       url: item.url,
       score: item.score,
+      skill: '',
       isSelect: false
     }));
 
@@ -194,7 +197,12 @@ onMounted(async () => {
 });
 
 
+/**
+ * 轮换动画
+ */
 const isRandomScroll = ref(false);
+const highlightedLeftIndex = ref(null); // 用于存储当前高亮左侧元素的索引
+const highlightedRightIndex = ref(null); // 用于存储当前高亮右侧元素的索引
 async function nextGroupHandle() {
   if (store.state.group.compGroupLeft.length === 16) {
     return;
@@ -247,6 +255,10 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+
+/**
+ * 页面切换
+ */
 function fistRound() {
   router.push('/FirstRound/FirstRoundView');
   nextTick(() => {

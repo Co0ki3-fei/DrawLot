@@ -9,7 +9,8 @@ export default createStore({
       user: {
         name: '',
         age: null,
-      }
+      },
+      skillPool: ["skill1", "skill2", "skill3", "skill4", "skill5", "skill6", "skill7", "skill8", "skill9", "skill10", "skill11", "skill12"]
     };
   },
   modules:{
