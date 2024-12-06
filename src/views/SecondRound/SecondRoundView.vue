@@ -157,7 +157,7 @@ const bgmPool = [
 
 .lp-part1 .el-text {
   font-size: 30px;
-  color: black;
+  color: var(--text-color);
   font-style: italic;
   font-weight: normal;
 }
@@ -172,7 +172,7 @@ const bgmPool = [
 
 .rp-part1 .el-text {
   font-size: 30px;
-  color: black;
+  color: var(--text-color);
   font-style: italic;
   font-weight: normal;
 }
@@ -184,6 +184,7 @@ const bgmPool = [
   font-size: 30px;
   font-style: italic;
   text-decoration: underline;
+  color: var(--text-color);
 }
 
 .score {

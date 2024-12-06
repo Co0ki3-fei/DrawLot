@@ -291,7 +291,7 @@ function handleRightPlayerSkillChange(skill) {
 
 .lp-part1 .el-text {
   font-size: 30px;
-  color: black;
+  color: var(--text-color);
   font-style: italic;
   font-weight: normal;
 }
@@ -311,11 +311,11 @@ function handleRightPlayerSkillChange(skill) {
 
 .lp-skill .el-text {
   font-size: 20px;
+  color: var(--text-color);
   display: inline-block;
   position: relative;
   font-weight: bold;
   font-style: italic;
-  color: black;
   text-decoration: none; 
   padding-bottom: 2px; 
 }
@@ -351,7 +351,7 @@ function handleRightPlayerSkillChange(skill) {
 
 .rp-part1 .el-text {
   font-size: 30px;
-  color: black;
+  color: var(--text-color);
   font-style: italic;
   font-weight: normal;
 }
@@ -371,11 +371,11 @@ function handleRightPlayerSkillChange(skill) {
 
 .rp-skill .el-text {
   font-size: 20px;
+  color: var(--text-color);
   display: inline-block;
   position: relative;
   font-weight: bold;
   font-style: italic;
-  color: black;
   text-decoration: none;
   padding-bottom: 2px; 
 }
@@ -406,7 +406,7 @@ function handleRightPlayerSkillChange(skill) {
 
 .score-res {
   font-size: 32px;
-  color: black;
+  color: var(--text-color);
   font-style: italic;
   text-decoration: underline;
 }
@@ -423,7 +423,7 @@ function handleRightPlayerSkillChange(skill) {
 
 .skill-title {
   font-size: 24px;
-  color: black;
+  color: var(--text-color);
   font-style: italic;
   text-decoration: underline;
   font-weight: bold;
