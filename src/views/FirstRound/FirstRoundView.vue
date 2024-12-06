@@ -108,21 +108,24 @@ import {ref, computed } from 'vue'
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
+
+/**
+ * data from store
+ */
 const router = useRouter();
 const store = useStore();
-
-// test
-// const leftPlayer = {'name': '1','url':'',"score":0}
-// const rightPlayer = {'name': '1','url':'',"score":0}
-
 const compGroupLeft = computed(() => store.getters['group/compGroupLeft']);
 const compGroupRight = computed(() => store.getters['group/compGroupRight']);
 const bgms = computed(() => store.getters['group/getBgm']);
+const skills = computed(() => store.state.skillPool)
 
-
+// index
 const currentIndex = ref(0);
-const group = ref(String.fromCharCode(65 + currentIndex.value))
 
+/**
+ * dynamic data for UI
+ */
+const group = ref(String.fromCharCode(65 + currentIndex.value))
 const bgm = computed(() => {
   return bgms.value && bgms.value[currentIndex.value] ? bgms.value[currentIndex.value] : "bgm_name";
 });
@@ -135,15 +138,15 @@ const rightPlayer = computed(() => {
   return compGroupRight.value && compGroupRight.value[currentIndex.value] ? compGroupRight.value[currentIndex.value] : {'name': '123','url':'',"score":0};
 });
 
-const skills = computed(() => store.state.skillPool)
-console.log(skills.value)
-const skillPool = ref([])
 const hasWinner = computed(() => leftPlayer.value.score >= 2 || rightPlayer.value.score >= 2)
 
 
+/**
+ * To display the 'Skill Pool' table
+ */
+const skillPool = ref([])
 const chunkSize = 3;
 skillPool.value = chunkArray(skills.value, chunkSize);
-
 function chunkArray(arr, size) {
   let result = [];
   for (let i = 0; i < arr.length; i += size) {
@@ -152,96 +155,80 @@ function chunkArray(arr, size) {
   return result;
 }
 
+
+/**
+ * proceed to the next group match and determine the winner
+ * a total of 16 rounds will be held
+ */
 function nextGroup() {
-  
-  console.log(leftPlayer.value.score)
-  console.log(rightPlayer.value.score)
-  console.log(hasWinner.value)
   if (!hasWinner.value) return
-  console.log(1)
-  
+
+  // push the winner into the global variable
   if(leftPlayer.value.score > rightPlayer.value.score) {
     store.dispatch('group/addToFistRoundWinners', leftPlayer);
   } else {
     store.dispatch('group/addToFistRoundWinners', rightPlayer);
   }
 
-  
-
-  const fistRoundWinnerList = computed(() => store.getters['group/fistRoundWinners']);
-  console.log(fistRoundWinnerList.value)
+  // change group
   group.value = String.fromCharCode(65 + currentIndex.value)
   
-  console.log( currentIndex.value)
-  console.log(group)
   if(currentIndex.value === 2) {
     router.push('/FirstRound/FirstRoundWinnerListView');
     return;
   }
-
   currentIndex.value += 1
 }
 
-// Dialog visibility
+/**
+ * use dialog and dropdown to modify the player's score and selected skill
+ */
 const leftPlayerDialogVisible = ref(false);
 const rightPlayerDialogVisible = ref(false);
-
-// 打开左侧选手的对话框
 function setLeftPlayerScore() {
   leftPlayerDialogVisible.value = true;
   console.log(1)
   console.log(leftPlayerDialogVisible.value)
 }
 
-// 打开右侧选手的对话框
 function setRightPlayerScore() {
   rightPlayerDialogVisible.value = true;
 }
 
-// 关闭左侧选手的对话框
 function closeLeftPlayerDialog() {
   leftPlayerDialogVisible.value = false;
 }
 
-// 关闭右侧选手的对话框
 function closeRightPlayerDialog() {
   rightPlayerDialogVisible.value = false;
 }
 
-// 增加左侧选手胜场
 function increaseLeftPlayerScore() {
   leftPlayer.value.score += 1;
   closeLeftPlayerDialog();
 }
 
-// 减少左侧选手胜场
 function decreaseLeftPlayerScore() {
   leftPlayer.value.score -= 1;
   closeLeftPlayerDialog();
 }
 
-// 增加右侧选手胜场
 function increaseRightPlayerScore() {
   rightPlayer.value.score += 1;
   closeRightPlayerDialog();
 }
 
-// 减少右侧选手胜场
 function decreaseRightPlayerScore() {
   rightPlayer.value.score -= 1;
   closeRightPlayerDialog();
 }
 
-// 处理左侧选手技能变化
 function handleLeftPlayerSkillChange(skill) {
   leftPlayer.value.skill = skill;
-  console.log('左侧选手技能已更改为:', skill);
 }
 
-// 处理右侧选手技能变化
 function handleRightPlayerSkillChange(skill) {
   rightPlayer.value.skill = skill;
-  console.log('右侧选手技能已更改为:', skill);
 }
 </script>
 
