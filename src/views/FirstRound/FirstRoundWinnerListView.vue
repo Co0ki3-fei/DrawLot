@@ -53,14 +53,19 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const store = useStore();
 
-const fistRoundWinnerList = computed(() => store.getters['group/fistRoundWinners']);
+const playerList = computed(() => store.getters['group/compGroup']);
+
+// 添加一个计算属性来获取第一轮胜者
+const fistRoundWinnerList = computed(() => {
+  return playerList.value.filter(player => player.isFirstWinner === true);
+});
 
 const winnerList = ref([]);
 
-
+// 使用过滤后的胜者列表创建显示数据
 for (let index = 0; index < fistRoundWinnerList.value.length; index++) {
   winnerList.value.push({
-    winnerPart1: String.fromCharCode(65 + index),
+    winnerPart1: String.fromCharCode(65 + fistRoundWinnerList.value[index].firstRoundGroup),
     winnerPart2: fistRoundWinnerList.value[index] || "", 
   });
 }
