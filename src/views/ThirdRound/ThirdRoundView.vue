@@ -5,7 +5,22 @@
     </div>
     <div class="body">
       <div class="title">八强对决</div>
-      <div class="bgm">BGM: {{ bgm }}</div>
+      <div class="bgm" @click="showBgmSelect = true">
+        <el-dropdown trigger="click" @command="handleBgmSelect">
+          <span class="bgm-text">BGM: {{ currentBgm }}</span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item 
+                v-for="bgm in bgmPool" 
+                :key="bgm" 
+                :command="bgm"
+              >
+                {{ bgm }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
       <div class="player-form">
         <div class="left-player">
           <div class="lp-part1">
@@ -40,10 +55,10 @@
         <div class="bgm-pool">
           <div class="bp-title">BGM池</div>
           <div class="bp-table">
-            <el-table :data="bgmPool" border :show-header="false">
-              <el-table-column prop="" align="center"></el-table-column>
-              <el-table-column align="center"></el-table-column>
-              <el-table-column align="center"></el-table-column>
+            <el-table :data="formattedBgmPool" border :show-header="false">
+              <el-table-column prop="col1" align="center"></el-table-column>
+              <el-table-column prop="col2" align="center"></el-table-column>
+              <el-table-column prop="col3" align="center"></el-table-column>
             </el-table>
           </div>
         </div>
@@ -220,29 +235,6 @@ const updatePlayerScore = (playerId, score) => {
   }
 }
 
-// 设置对决选手
-const setMatchPlayers = (groupIndex) => {
-  const winners = secondRoundWinners.value
-  switch(groupIndex) {
-    case 0:
-      leftPlayer.value = winners[0]  // 第一组第一名
-      rightPlayer.value = winners[7] // 第四组第二名
-      break
-    case 1:
-      leftPlayer.value = winners[2]  // 第二组第一名
-      rightPlayer.value = winners[5] // 第三组第二名
-      break
-    case 2:
-      leftPlayer.value = winners[4]  // 第三组第一名
-      rightPlayer.value = winners[3] // 第二组第二名
-      break
-    case 3:
-      leftPlayer.value = winners[6]  // 第四组第一名
-      rightPlayer.value = winners[1] // 第一组第二名
-      break
-  }
-  isSelect.value = true
-}
 
 // 对话框控制
 const leftPlayerDialogVisible = ref(false)
@@ -338,6 +330,40 @@ const nextGroup = () => {
   }
 }
 
+// BGM相关数据
+const currentBgm = ref("点击选择BGM")
+const bgmPool = [
+  "Megalovania - Undertale",
+  "One Winged Angel - FF7",
+  "The Only Thing I Know For Real - MGR",
+  "Bury the Light - DMC5",
+  "Red Sun in the Sky - MGR",
+  "It Has To Be This Way - MGR",
+  "Devil Trigger - DMC5",
+  "Rivers in the Desert - P5",
+  "Last Surprise - P5",
+  "Life Will Change - P5",
+  "Take Over - P5R",
+  "I Believe - P5R"
+]
+
+// BGM选择处理函数
+const handleBgmSelect = (bgm) => {
+  currentBgm.value = bgm
+}
+
+// BGM池数据格式化
+const formattedBgmPool = computed(() => {
+  const rows = []
+  for (let i = 0; i < bgmPool.length; i += 3) {
+    rows.push({
+      col1: bgmPool[i] || '',
+      col2: bgmPool[i + 1] || '',
+      col3: bgmPool[i + 2] || ''
+    })
+  }
+  return rows
+})
 
 </script>
 
@@ -372,6 +398,16 @@ const nextGroup = () => {
   font-style: italic;
   text-decoration: underline;
   color: var(--text-color);
+  cursor: pointer;
+}
+
+.bgm-text:hover {
+  color: #409EFF;
+}
+
+.el-dropdown-menu {
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .player-form {
@@ -492,6 +528,17 @@ const nextGroup = () => {
   align-items: center;
 }
 
+.bp-title {
+  font-size: 20px;
+  font-weight: bold;
+  font-style: italic;
+  text-decoration: underline;
+  color: var(--text-color);
+}
 
+.bp-table {
+  height: 100%;
+  width: 70%;
+}
 
 </style>

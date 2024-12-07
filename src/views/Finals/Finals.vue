@@ -66,7 +66,7 @@ const bgm = "bgm_name"
 const leftPlayer = {'avatar':'','name':'选手7','firstRoundScore':0, 'skill': ''}
 const rightPlayer = {'avatar':'','name':'选手23','firstRoundScore':0, 'skill': ''}
 const skillPool = []
-const isSelect = true
+const isSelect = false
 
 console.log(skillPool)
 
@@ -115,6 +115,7 @@ const bgmPool = [
 .title {
   font-size: 32px;
   font-weight: bold;
+  color: var(--text-color);
 }
 
 .bgm {
@@ -122,7 +123,8 @@ const bgmPool = [
   padding-top: 1%;
   font-weight: bold;
   font-style: italic;
-  text-decoration: underline
+  text-decoration: underline;
+  color: var(--text-color);
 }
 
 .player-form {
@@ -228,6 +230,7 @@ const bgmPool = [
   font-weight: bold;
   font-style: italic;
   text-decoration: underline;
+  color: var(--text-color);
 }
 
 .pp-table, .bp-table {
