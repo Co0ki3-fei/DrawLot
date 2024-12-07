@@ -84,8 +84,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
-import router from "@/router/index.js";
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const store = useStore()
 const bgm = ref("bgm_name")
 const isSelect = ref(false)

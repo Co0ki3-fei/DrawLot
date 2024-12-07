@@ -91,6 +91,9 @@ const mutations = {
     },
     updatePlayerIsThirdWinnerToWin({ commit }, playerId) {
       commit('UPDATE_PLAYER_IS_THIRD_WINNER_TO_WIN', playerId)
+    },
+    updatePlayerIsThirdWinnerToDefeat({ commit }, playerId) {
+      commit('UPDATE_PLAYER_IS_THIRD_WINNER_TO_DEFEAT', playerId)
     }
   };
 
