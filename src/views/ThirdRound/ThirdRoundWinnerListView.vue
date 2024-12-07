@@ -52,22 +52,9 @@
 </template>
   
 <script setup>
-import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
-import router from '@/router'
-
-const store = useStore()
-
-// 存储高亮状态的对象
-const highlightedCells = ref({})
-
-// 切换高亮状态的函数
-const toggleHighlight = (rowIndex, colIndex) => {
-  const key = `${rowIndex}-${colIndex}`
-  highlightedCells.value[key] = !highlightedCells.value[key]
-}
-
-// 测试数据
+/**
+ * 测试使用的数据以及secondRoundWinners
+ */
 const testData = [
  {
     playerId: 1,
@@ -76,7 +63,8 @@ const testData = [
     group: 0,  // 第一组
     secondRoundOrder: 1,  // 组内第二名
     isSecondWinner: true,
-    thirdRoundScore: 0
+    thirdRoundScore: 0,
+    isThirdWinner: true
   },
   {
     playerId: 2,
@@ -85,7 +73,8 @@ const testData = [
     group: 0,  // 第一组
     secondRoundOrder: 2,  // 组内第二名
     isSecondWinner: true,
-    thirdRoundScore: 0
+    thirdRoundScore: 0,
+    isThirdWinner: true
   },
   {
     playerId: 3,
@@ -94,7 +83,8 @@ const testData = [
     group: 1,  // 第二组
     secondRoundOrder: 1,
     isSecondWinner: true,
-    thirdRoundScore: 0
+    thirdRoundScore: 0,
+    isThirdWinner: true
   },
   {
     playerId: 4,
@@ -103,7 +93,8 @@ const testData = [
     group: 1,
     secondRoundOrder: 2,
     isSecondWinner: true,
-    thirdRoundScore: 0
+    thirdRoundScore: 0,
+    isThirdWinner: true
   },
   {
     playerId: 5,
@@ -112,7 +103,8 @@ const testData = [
     group: 2,
     secondRoundOrder: 1,
     isSecondWinner: true,
-    thirdRoundScore: 0
+    thirdRoundScore: 0,
+    isThirdWinner: false
   },
   {
     playerId: 6,
@@ -121,7 +113,8 @@ const testData = [
     group: 2,
     secondRoundOrder: 2,
     isSecondWinner: true,
-    thirdRoundScore: 0
+    thirdRoundScore: 0,
+    isThirdWinner: false
   },
   {
     playerId: 7,
@@ -130,7 +123,8 @@ const testData = [
     group: 3,
     secondRoundOrder: 1,
     isSecondWinner: true,
-    thirdRoundScore: 0
+    thirdRoundScore: 0,
+    isThirdWinner: false
   },
   {
     playerId: 8,
@@ -139,11 +133,10 @@ const testData = [
     group: 3,
     secondRoundOrder: 2,
     isSecondWinner: true,
-    thirdRoundScore: 0
+    thirdRoundScore: 0,
+    isThirdWinner: false
   }
 ];
-
-// 修改 secondRoundWinners 计算属性为使用测试数据
 // const secondRoundWinners = computed(() => {
 //   return testData
 //     .sort((a, b) => {
@@ -154,8 +147,120 @@ const testData = [
 //   });
 // });
 
+import { computed, ref, onMounted } from 'vue'
+import { useStore } from 'vuex'
+import router from '@/router'
 
-// 获取第二轮胜者并按组和排名排序
+const store = useStore()
+
+/**
+ * 用于设置高亮，通过点击对手单元格取消或进行高亮
+ */
+const highlightedCells = ref({})
+
+const toggleHighlight = (rowIndex, colIndex) => {
+  const key = `${rowIndex}-${colIndex}`
+  highlightedCells.value[key] = !highlightedCells.value[key]
+  
+  // 获取对应的选手和对手
+  const winners = secondRoundWinners.value
+  let player, opponent
+  
+  // 根据点击的位置确定选手和对手
+  if (rowIndex === 0) {
+    switch(colIndex) {
+      case 0:
+        player = winners[0]
+        opponent = winners[7]
+        break
+      case 1:
+        player = winners[2]
+        opponent = winners[5]
+        break
+      case 2:
+        player = winners[4]
+        opponent = winners[3]
+        break
+      case 3:
+        player = winners[6]
+        opponent = winners[1]
+        break
+    }
+  } else {
+    switch(colIndex) {
+      case 0:
+        player = winners[7]
+        opponent = winners[0]
+        break
+      case 1: 
+        player = winners[5]
+        opponent = winners[2]
+        break
+      case 2: 
+        player = winners[3]
+        opponent = winners[4]
+        break
+      case 3: 
+        player = winners[1]
+        opponent = winners[6]
+        break
+    }
+  }
+
+  if (player && opponent) {
+    if (highlightedCells.value[key]) {
+      // 设置当前选手为胜者 设置对手为败者
+      store.dispatch('group/updatePlayerIsThirdWinnerToWin', player.playerId)
+      store.dispatch('group/updatePlayerIsThirdWinnerToDefeat', opponent.playerId)
+      
+      // 取消对手单元格的高亮
+      const opponentRowIndex = rowIndex === 0 ? 1 : 0
+      const opponentKey = `${opponentRowIndex}-${colIndex}`
+      highlightedCells.value[opponentKey] = false
+    } else {
+      // 取消当前选手的胜者状态
+      store.dispatch('group/updatePlayerIsThirdWinnerToDefeat', player.playerId)
+    }
+  }
+}
+// 初始化高亮状态
+onMounted(() => {
+  const winners = secondRoundWinners.value
+  winners.forEach((player, index) => {
+    if (player.isThirdWinner) {
+      // 根据选手在表格中的位置设置高亮
+      let rowIndex, colIndex
+      if (index < 8) {
+        if (index === 0) { rowIndex = 0; colIndex = 0; } 
+        else if (index === 2) { rowIndex = 0; colIndex = 1; } 
+        else if (index === 4) { rowIndex = 0; colIndex = 2; }
+        else if (index === 6) { rowIndex = 0; colIndex = 3; }
+        else if (index === 7) { rowIndex = 1; colIndex = 0; }
+        else if (index === 5) { rowIndex = 1; colIndex = 1; } 
+        else if (index === 3) { rowIndex = 1; colIndex = 2; }
+        else if (index === 1) { rowIndex = 1; colIndex = 3; } 
+        
+        highlightedCells.value[`${rowIndex}-${colIndex}`] = true
+      }
+    }
+  })
+})
+
+
+/**
+ *  表格头样式
+ */
+ const headerCellStyle = () => {
+  return {
+    backgroundColor: '#c7c7c7',
+    color: 'black',
+    borderColor: '#c7c7c7'
+  }
+}
+
+/**
+ * 获取从第二轮胜者中选出的选手，并按组和排名排序放入选手池中
+ */
 const secondRoundWinners = computed(() => {
   return store.getters['group/compGroup']
     .filter(player => player.isSecondWinner === true)
@@ -166,36 +271,31 @@ const secondRoundWinners = computed(() => {
       return a.secondRoundOrder - b.secondRoundOrder
     })
 })
-
-// 根据对决规则组织选手池数据
 const playerPool = computed(() => {
   const winners = secondRoundWinners.value
   if (winners.length !== 8) return []
   
   return [
     {
-      fist_group: winners[0]?.name || '', // A1
-      second_group: winners[2]?.name || '', // B1
-      third_group: winners[4]?.name || '', // C1
-      forth_group: winners[6]?.name || ''  // D1
+      fist_group: winners[0]?.name || '', 
+      second_group: winners[2]?.name || '',
+      third_group: winners[4]?.name || '',
+      forth_group: winners[6]?.name || ''
     },
     {
-      fist_group: winners[7]?.name || '', // D2
-      second_group: winners[5]?.name || '', // C2
-      third_group: winners[3]?.name || '', // B2
-      forth_group: winners[1]?.name || ''  // A2
+      fist_group: winners[7]?.name || '', 
+      second_group: winners[5]?.name || '', 
+      third_group: winners[3]?.name || '',
+      forth_group: winners[1]?.name || ''  
     }
   ]
 })
 
-const headerCellStyle = () => {
-  return {
-    backgroundColor: '#c7c7c7',
-    color: 'black',
-    borderColor: '#c7c7c7'
-  }
-}
 
+
+/**
+ * 进入总决赛阶段
+ */
 const nextRound = () => {
   router.push('/Finals/Finals')
 }
