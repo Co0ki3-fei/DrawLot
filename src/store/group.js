@@ -34,6 +34,30 @@ const mutations = {
 		if (player) {
 			player.isFirstWinner = false;
 		}
+	},
+	UPDATE_PLAYER_SECOND_ROUND_SCORE(state, { playerId, score }) {
+		const player = state.compGroup.find(p => p.playerId === playerId)
+		if (player) {
+			player.thirdRoundScore = score
+		}
+	},
+	UPDATE_PLAYER_SECOND_ROUND_ORDER(state, { playerId, order }) {
+		const player = state.compGroup.find(p => p.playerId === playerId)
+		if (player) {
+			player.thirdRoundScore = order
+		}
+	},
+	UPDATE_PLAYER_THIRD_ROUND_SCORE(state, { playerId, score }) {
+		const player = state.compGroup.find(p => p.playerId === playerId)
+		if (player) {
+			player.thirdRoundScore = score
+		}
+	},
+	UPDATE_PLAYER_IS_THIRD_WINNER_TO_WIN(state, playerId) {
+		const player = state.compGroup.find(p => p.playerId === playerId)
+		if (player) {
+			player.isThirdWinner = true
+		}
 	}
 };
 
@@ -56,6 +80,12 @@ const mutations = {
     updateGroupIsFirstWinnerToDefeat({commit}, playerId){
       commit('UPDATE_GROUP_IS_FIRST_WINNER_TO_DEFEAT', playerId)
     },
+		updatePlayerSecondRoundScore({ commit }, payload) {
+			commit('UPDATE_PLAYER_SECOND_ROUND_SCORE', payload)
+		},
+		updatePlayerSecondRoundOrder({ commit }, payload) {
+			commit('UPDATE_PLAYER_SECOND_ROUND_ORDER', payload)
+		},
     updatePlayerThirdRoundScore({ commit }, payload) {
       commit('UPDATE_PLAYER_THIRD_ROUND_SCORE', payload)
     },

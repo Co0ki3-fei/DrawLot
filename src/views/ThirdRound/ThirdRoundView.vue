@@ -10,9 +10,9 @@
           <span class="bgm-text">BGM: {{ currentBgm }}</span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item 
-                v-for="bgm in bgmPool" 
-                :key="bgm" 
+              <el-dropdown-item
+                v-for="bgm in bgmPool"
+                :key="bgm"
                 :command="bgm"
               >
                 {{ bgm }}
@@ -33,7 +33,7 @@
           <div class="score-res">{{ leftPlayer.thirdRoundScore }}:{{ rightPlayer.thirdRoundScore }}</div>
         </div>
         <div class="right-player">
-          
+
           <div class="lp-part1">
             <el-image :src="rightPlayer.avatar" style="width: 150px; height: 200px"  @click="setRightPlayerScore"></el-image>
             <el-text @click="setRightPlayerScore">{{ rightPlayer.name }}</el-text>
@@ -84,6 +84,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
+import router from "@/router/index.js";
 
 const store = useStore()
 const bgm = ref("bgm_name")
@@ -196,7 +197,7 @@ const secondRoundWinners = computed(() => {
 const playerPool = computed(() => {
   const winners = secondRoundWinners.value
   if (winners.length !== 8) return []
-  
+
   return [
     {
       fist_group: winners[0]?.name || '', // 添加空值判断
@@ -229,7 +230,7 @@ const updatePlayerScore = (playerId, score) => {
     playerId,
     score
   })
-  
+
   if (score >= 2) {
     store.dispatch('group/updatePlayerIsThirdWinnerToWin', playerId)
   }
@@ -311,7 +312,7 @@ const nextGroup = () => {
 
   // 切换到下一组
   currentGroupIndex.value++
-  
+
   // 根据新的组索引设置对决选手
   const winners = secondRoundWinners.value
   switch(currentGroupIndex.value) {

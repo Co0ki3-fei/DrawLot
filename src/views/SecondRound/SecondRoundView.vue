@@ -1,15 +1,32 @@
 <template>
   <div class="second-round">
     <div class="nextBt">
-      <el-button>下一组</el-button>
+      <el-button @click="nextGroupHandler">下一组</el-button>
+    </div>
 
-    </div>
     <div class="stopLoopBt">
-      <el-button>结束小组循环</el-button>
+      <el-button @click="finishGroupLoopHandler">结束小组循环</el-button>
     </div>
+
     <div class="body">
       <div class="title">十六强对决</div>
-      <div class="bgm">BGM: {{ currentBGM }}</div>
+
+      <el-dropdown placement="bottom-start" @command="bgmChooseHandler" style="border: 0">
+        <el-button class="bgm" style="border: 0"> {{ currentBGM ? "BGM: "+currentBGM : '请选择BGM' }}</el-button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <!-- 使用 v-for 动态生成下拉菜单项 -->
+            <el-dropdown-item
+              v-for="(bgm,index) in bgms"
+              :key="index"
+              :command="bgm"
+            >
+              {{ bgm }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+
       <div class="player-form">
 
         <div class="left-player">
@@ -95,13 +112,11 @@
       <el-button @click="increaseLeftPlayerScore">增加胜场</el-button>
       <el-button @click="decreaseLeftPlayerScore">减少胜场</el-button>
     </el-dialog>
-
     <!-- dialog for Right Player -->
     <el-dialog v-model="rightPlayerDialogVisible" title="修改胜场" @close="closeRightPlayerDialog">
       <el-button @click="increaseRightPlayerScore">增加胜场</el-button>
       <el-button @click="decreaseRightPlayerScore">减少胜场</el-button>
     </el-dialog>
-
     <!-- choose Left Player -->
     <el-dialog v-model="leftPlayerChooseVisible" title="选择选手" @close="closeLeftPlayerChoose">
       <div class="button-grid">
@@ -112,8 +127,7 @@
         </div>
       </div>
     </el-dialog>
-
-    <!-- dialog for Right Player -->
+    <!-- choose Right Player -->
     <el-dialog v-model="rightPlayerChooseVisible" title="选择选手" @close="closeRightPlayerChoose">
       <div class="button-grid">
         <div v-for="(group, index) in playerPool" :key="index" class="button-column">
@@ -134,12 +148,14 @@ import {useRouter} from "vue-router";
 import {useStore} from "vuex";
 import {computed, ref} from "vue";
 import {chunkArray} from "@/utils/utils.js";
+import {ElMessage} from "element-plus";
 
 const router = useRouter();
 const store = useStore();
 
 const bgms = computed(() => store.getters['group/getBgm']);
-//const compGroup = computed(() => store.getters['group/compGroup']);
+const compGroup = computed(() => store.getters['group/compGroup']);
+/*
 const compGroup = ref([
   {
     playerId: 1,
@@ -398,7 +414,7 @@ const compGroup = ref([
     isFinalWinner: false
   }
 ])
-
+*/
 const playerPool = ref([])
 for (let i = 0; i < 4; i++) {
   playerPool.value.push(compGroup.value.filter((player) => {
@@ -410,18 +426,36 @@ const bgmPool = ref([])
 bgmPool.value = chunkArray(bgms.value, 3)
 
 const currentBGM = ref('')
+const bgmChooseHandler = (bgm)=>{
+  currentBGM.value = bgm
+}
 
 const leftPlayer = ref(null)
 const rightPlayer = ref(null)
 const selectLeftPlayer = (player) =>{
+  if (player.playerId === rightPlayer.value?.playerId){
+    ElMessage({
+      message: '请选择不同的对手',
+      type: 'warning'
+    })
+    closeLeftPlayerChoose()
+    return
+  }
   leftPlayer.value = player
   closeLeftPlayerChoose()
 }
 const selectRightPlayer = (player) =>{
+  if (player.playerId === leftPlayer.value?.playerId){
+    ElMessage({
+      message: '请选择不同的对手',
+      type: 'warning'
+    })
+    closeRightPlayerChoose()
+    return
+  }
   rightPlayer.value = player
   closeRightPlayerChoose()
 }
-
 
 const headerCellStyle = () => {
   return {
@@ -431,6 +465,14 @@ const headerCellStyle = () => {
   }
 }
 
+const nextGroupHandler = () =>{
+  leftPlayer.value = null
+  rightPlayer.value = null
+}
+const finishGroupLoopHandler = ()=>{
+  router.push('/SecondRound/SecondRoundWinnerListView')
+  return
+}
 
 /**
  * use dialog and dropdown to modify the player's score and selected skill
@@ -443,52 +485,47 @@ const rightPlayerChooseVisible = ref(false);
 function setLeftPlayerScore() {
   leftPlayerDialogVisible.value = true;
 }
-
 function setRightPlayerScore() {
   rightPlayerDialogVisible.value = true;
 }
-
 function closeLeftPlayerDialog() {
   leftPlayerDialogVisible.value = false;
 }
-
 function closeRightPlayerDialog() {
   rightPlayerDialogVisible.value = false;
 }
-
 function setLeftPlayerChoose() {
   leftPlayerChooseVisible.value = true;
 }
-
 function setRightPlayerChoose() {
   rightPlayerChooseVisible.value = true;
 }
-
 function closeLeftPlayerChoose() {
   leftPlayerChooseVisible.value = false;
 }
-
 function closeRightPlayerChoose() {
   rightPlayerChooseVisible.value = false;
 }
 
+
 function increaseLeftPlayerScore() {
-  leftPlayer.value.firstRoundScore += 1;
+  store.dispatch('group/updatePlayerSecondRoundScore',
+    {playerId: leftPlayer.value.playerId, score: leftPlayer.value.score + 1})
   closeLeftPlayerDialog();
 }
-
 function decreaseLeftPlayerScore() {
-  leftPlayer.value.firstRoundScore -= 1;
+  store.dispatch('group/updatePlayerSecondRoundScore',
+    {playerId: leftPlayer.value.playerId, score: leftPlayer.value.score - 1})
   closeLeftPlayerDialog();
 }
-
 function increaseRightPlayerScore() {
-  rightPlayer.value.firstRoundScore += 1;
+  store.dispatch('group/updatePlayerSecondRoundScore',
+    {playerId: rightPlayer.value.playerId, score: rightPlayer.value.score + 1})
   closeRightPlayerDialog();
 }
-
 function decreaseRightPlayerScore() {
-  rightPlayer.value.firstRoundScore -= 1;
+  store.dispatch('group/updatePlayerSecondRoundScore',
+    {playerId: rightPlayer.value.playerId, score: rightPlayer.value.score + 1})
   closeRightPlayerDialog();
 }
 
@@ -521,6 +558,7 @@ function decreaseRightPlayerScore() {
 .bgm {
   font-size: 25px;
   padding-top: 1%;
+  color: var(--text-color);
   font-weight: bold;
   font-style: italic;
   text-decoration: underline
