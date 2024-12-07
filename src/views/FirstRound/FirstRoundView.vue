@@ -107,6 +107,7 @@
 import {ref, computed } from 'vue'
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import {chunkArray} from "@/utils/utils.js";
 
 
 /**
@@ -150,7 +151,7 @@ const rightPlayer = computed(() => {
   return compGroupRight.value && compGroupRight.value[currentIndex.value] ? compGroupRight.value[currentIndex.value] : {'name': 'NULL','avatar':'',"firstRoundScore":0};
 });
 
-const hasWinner = computed(() => leftPlayer.value.firstRoundScore >= 2 || rightPlayer.value.firstRoundScore >= 2)
+const hasWinner = computed(() => leftPlayer.value.firstRoundScore >= 1 || rightPlayer.value.firstRoundScore >= 1)
 
 
 /**
@@ -159,13 +160,7 @@ const hasWinner = computed(() => leftPlayer.value.firstRoundScore >= 2 || rightP
 const skillPool = ref([])
 const chunkSize = 3;
 skillPool.value = chunkArray(skills.value, chunkSize);
-function chunkArray(arr, size) {
-  let result = [];
-  for (let i = 0; i < arr.length; i += size) {
-    result.push(arr.slice(i, i + size));
-  }
-  return result;
-}
+
 
 
 /**
@@ -173,8 +168,6 @@ function chunkArray(arr, size) {
  * a total of 16 rounds will be held
  */
 function nextGroup() {
-
-  console.log(store.getters['group/compGroup'])
   if (!hasWinner.value) return
 
   // push the winner into the global variable
@@ -186,7 +179,7 @@ function nextGroup() {
     store.dispatch('group/updateGroupIsFirstWinnerToDefeat', leftPlayer.value.playerId);
   }
 
-  if(currentIndex.value === 2) {
+  if(currentIndex.value === 15) {
     router.push('/FirstRound/FirstRoundWinnerListView');
     return;
   }
@@ -200,8 +193,6 @@ const leftPlayerDialogVisible = ref(false);
 const rightPlayerDialogVisible = ref(false);
 function setLeftPlayerScore() {
   leftPlayerDialogVisible.value = true;
-  console.log(1)
-  console.log(leftPlayerDialogVisible.value)
 }
 
 function setRightPlayerScore() {

@@ -53,7 +53,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const store = useStore();
 
-const playerList = computed(() => store.getters['group/compGroup']);
+const playerList = () => store.getters['group/compGroup']
 
 // 添加一个计算属性来获取第一轮胜者，并按照分组顺序排序
 const fistRoundWinnerList = computed(() => {
@@ -68,7 +68,7 @@ const winnerList = ref([]);
 for (let index = 0; index < fistRoundWinnerList.value.length; index++) {
   winnerList.value.push({
     winnerPart1: String.fromCharCode(65 + fistRoundWinnerList.value[index].firstRoundGroup),
-    winnerPart2: fistRoundWinnerList.value[index] || "", 
+    winnerPart2: fistRoundWinnerList.value[index] || "",
   });
 }
 

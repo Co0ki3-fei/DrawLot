@@ -188,7 +188,6 @@ onMounted(async () => {
 
         secondRoundScore: 0,
         secondRoundOrder: 0,
-        isSecondWinner: false,
 
         thirdRoundScore: 0,
         thirdRoundOrder: 0,
@@ -196,7 +195,7 @@ onMounted(async () => {
 
         finalScore: 0,
         finalOrder: 0,
-        isFinalWinner: false,
+        isFinalWinner: false
       }
 
       store.dispatch('group/addToGroup', info)
