@@ -34,6 +34,18 @@ const state = () => ({
       if (player) {
         player.isFirstWinner = false;
       }
+    },
+    UPDATE_PLAYER_THIRD_ROUND_SCORE(state, { playerId, score }) {
+      const player = state.compGroup.find(p => p.playerId === playerId)
+      if (player) {
+        player.thirdRoundScore = score
+      }
+    },
+    UPDATE_PLAYER_IS_THIRD_WINNER_TO_WIN(state, playerId) {
+      const player = state.compGroup.find(p => p.playerId === playerId)
+      if (player) {
+        player.isThirdWinner = true
+      }
     }
   };
 
@@ -55,6 +67,12 @@ const state = () => ({
     },
     updateGroupIsFirstWinnerToDefeat({commit}, playerId){
       commit('UPDATE_GROUP_IS_FIRST_WINNER_TO_DEFEAT', playerId)
+    },
+    updatePlayerThirdRoundScore({ commit }, payload) {
+      commit('UPDATE_PLAYER_THIRD_ROUND_SCORE', payload)
+    },
+    updatePlayerIsThirdWinnerToWin({ commit }, playerId) {
+      commit('UPDATE_PLAYER_IS_THIRD_WINNER_TO_WIN', playerId)
     }
   };
 
