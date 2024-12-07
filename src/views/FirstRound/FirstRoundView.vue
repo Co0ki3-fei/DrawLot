@@ -114,13 +114,26 @@ import { useRouter } from 'vue-router';
  */
 const router = useRouter();
 const store = useStore();
-const compGroupLeft = computed(() => store.getters['group/compGroup']);
-const compGroupRight = computed(() => store.getters['group/compGroupRight']);
+
+const compGroup = computed(() => store.getters['group/compGroup']);
+
+const compGroupLeft = ref([]);
+const compGroupRight = ref([]);
 const bgms = computed(() => store.getters['group/getBgm']);
 const skills = computed(() => store.state.skillPool)
 
 // index
 const currentIndex = ref(0);
+
+for (let i = 0; i < 16; i++) {
+  compGroup.value.forEach((player)=>{
+    if (player.firstRoundGroup === i && player.isBetter){
+      compGroupLeft.value.push({...player, firstRoundScore:0, firstRoundSkill:''})
+    }else if(player.firstRoundGroup === i && !player.isBetter){
+      compGroupRight.value.push({...player, firstRoundScore:0, firstRoundSkill:''})
+    }
+  })
+}
 
 /**
  * dynamic data for UI
@@ -131,11 +144,11 @@ const bgm = computed(() => {
 });
 
 const leftPlayer = computed(() => {
-  return compGroupLeft.value && compGroupLeft.value[currentIndex.value] ? compGroupLeft.value[currentIndex.value] : {'name': '123','avatar':'',"firstRoundScore":0};
+  return compGroupLeft.value && compGroupLeft.value[currentIndex.value] ? compGroupLeft.value[currentIndex.value] : {'name': 'NULL','avatar':'',"firstRoundScore":0};
 });
 
 const rightPlayer = computed(() => {
-  return compGroupRight.value && compGroupRight.value[currentIndex.value] ? compGroupRight.value[currentIndex.value] : {'name': '123','avatar':'',"firstRoundScore":0};
+  return compGroupRight.value && compGroupRight.value[currentIndex.value] ? compGroupRight.value[currentIndex.value] : {'name': 'NULL','avatar':'',"firstRoundScore":0};
 });
 
 const hasWinner = computed(() => leftPlayer.value.firstRoundScore >= 2 || rightPlayer.value.firstRoundScore >= 2)
@@ -161,13 +174,15 @@ function chunkArray(arr, size) {
  * a total of 16 rounds will be held
  */
 function nextGroup() {
+
+  console.log(store.getters['group/compGroup'])
   if (!hasWinner.value) return
 
   // push the winner into the global variable
   if(leftPlayer.value.firstRoundScore > rightPlayer.value.firstRoundScore) {
-    store.dispatch('group/addToFistRoundWinners', leftPlayer);
+    store.dispatch('group/updateGroupIsFirstWinner', leftPlayer.value.playerId);
   } else {
-    store.dispatch('group/addToFistRoundWinners', rightPlayer);
+    store.dispatch('group/updateGroupIsFirstWinner', rightPlayer.value.playerId);
   }
 
   // change group
@@ -204,22 +219,22 @@ function closeRightPlayerDialog() {
 }
 
 function increaseLeftPlayerScore() {
-  leftPlayer.value.score += 1;
+  leftPlayer.value.firstRoundScore += 1;
   closeLeftPlayerDialog();
 }
 
 function decreaseLeftPlayerScore() {
-  leftPlayer.value.score -= 1;
+  leftPlayer.value.firstRoundScore -= 1;
   closeLeftPlayerDialog();
 }
 
 function increaseRightPlayerScore() {
-  rightPlayer.value.score += 1;
+  rightPlayer.value.firstRoundScore += 1;
   closeRightPlayerDialog();
 }
 
 function decreaseRightPlayerScore() {
-  rightPlayer.value.score -= 1;
+  rightPlayer.value.firstRoundScore -= 1;
   closeRightPlayerDialog();
 }
 
@@ -230,6 +245,7 @@ function handleLeftPlayerSkillChange(skill) {
 function handleRightPlayerSkillChange(skill) {
   rightPlayer.value.firstRoundSkill = skill;
 }
+
 </script>
 
 <style>
