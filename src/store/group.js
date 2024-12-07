@@ -1,12 +1,11 @@
 const state = () => ({
-	compGroup: [],
-	bgmPool: ["BGM1", "BGM2", "BGM3", "BGM4", "BGM5", "BGM6", "BGM7", "BGM8", "BGM9", "BGM10", "BGM11", "BGM12"],
-	skillPool: ["skill1", "skill2", "skill3", "skill4", "skill5", "skill6", "skill7", "skill8", "skill9", "skill10", "skill11", "skill12"],
-	fistRoundWinners: [],
-	secondRoundWinners: [],
-	thirdRoundWinners: [],
-	finalWinners: []
-});
+    compGroup: [],
+    bgm: ["BGM1", "BGM2", "BGM3", "BGM4", "BGM5", "BGM6", "BGM7", "BGM8", "BGM9", "BGM10", "BGM11", "BGM12", "BGM13", "BGM14", "BGM15", "BGM16"],
+    fistRoundWinners: [],
+    secondRoundWinners: [],
+    thirdRoundWinners: [],
+    finalWinners: []
+  });
 
 const mutations = {
 	ADD_TO_GROUP(state, player) {
@@ -38,6 +37,32 @@ const mutations = {
 	}
 };
 
+  const actions = {
+    addToGroup({ commit }, player) {
+      commit('ADD_TO_GROUP', player);
+    },
+    resetGroups({ commit }) {
+      commit('RESET_GROUPS');
+    },
+    addToFistRoundWinners({commit},player) {
+      commit('ADD_TO_FIST_ROUND_WINNERS', player);
+    },
+    updateGroupFirstRoundGroup({commit}, obj){
+      commit('UPDATE_GROUP_FIRST_ROUND_GROUP', {playerId: obj.playerId, firstRoundGroup: obj.firstRoundGroup})
+    },
+    updateGroupIsFirstWinnerToWin({commit}, playerId){
+      commit('UPDATE_GROUP_IS_FIRST_WINNER_TO_WIN', playerId)
+    },
+    updateGroupIsFirstWinnerToDefeat({commit}, playerId){
+      commit('UPDATE_GROUP_IS_FIRST_WINNER_TO_DEFEAT', playerId)
+    },
+    updatePlayerThirdRoundScore({ commit }, payload) {
+      commit('UPDATE_PLAYER_THIRD_ROUND_SCORE', payload)
+    },
+    updatePlayerIsThirdWinnerToWin({ commit }, playerId) {
+      commit('UPDATE_PLAYER_IS_THIRD_WINNER_TO_WIN', playerId)
+    }
+  };
 const actions = {
 	addToGroup({commit}, player) {
 		commit('ADD_TO_GROUP', player);
@@ -61,8 +86,7 @@ const actions = {
 
 const getters = {
 	compGroup: (state) => state.compGroup,
-	getBgm: (state) => state.bgmPool,
-  getSkill: (state) => state.skillPool,
+	getBgm: (state) => state.bgm,
 	fistRoundWinners: (state) => state.fistRoundWinners,
 	secondRoundWinners: (state) => state.secondRoundWinners,
 	thirdRoundWinners: (state) => state.thirdRoundWinners,

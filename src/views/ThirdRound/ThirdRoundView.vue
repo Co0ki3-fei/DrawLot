@@ -1,30 +1,42 @@
 <template>
   <div class="second-round">
     <div class="nextBt">
-      <el-button>下一组</el-button>
-
+      <el-button @click="nextGroup">下一组</el-button>
     </div>
     <div class="body">
       <div class="title">八强对决</div>
-      <div class="bgm">BGM: {{ bgm }}</div>
+      <div class="bgm" @click="showBgmSelect = true">
+        <el-dropdown trigger="click" @command="handleBgmSelect">
+          <span class="bgm-text">BGM: {{ currentBgm }}</span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item 
+                v-for="bgm in bgmPool" 
+                :key="bgm" 
+                :command="bgm"
+              >
+                {{ bgm }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
       <div class="player-form">
         <div class="left-player">
           <div class="lp-part1">
-            <el-image :src="leftPlayer.avatar" style="width: 150px; height: 200px" :fit="none"></el-image>
-            <el-text>{{ leftPlayer.name }}</el-text>
+            <el-image :src="leftPlayer.avatar" style="width: 150px; height: 200px" @click="setLeftPlayerScore"></el-image>
+            <el-text @click="setLeftPlayerScore">{{ leftPlayer.name }}</el-text>
           </div>
         </div>
         <div class="score">
           <div class="score-txt">VS</div>
-          <div class="score-res">{{ leftPlayer.firstRoundScore }}:{{ rightPlayer.firstRoundScore }}</div>
+          <div class="score-res">{{ leftPlayer.thirdRoundScore }}:{{ rightPlayer.thirdRoundScore }}</div>
         </div>
         <div class="right-player">
-          <div class="select-player" v-if="!isSelect">
-            选择选手
-          </div>
-          <div class="lp-part1" v-if="isSelect">
-            <el-image :src="rightPlayer.avatar" style="width: 150px; height: 200px" :fit="none"></el-image>
-            <el-text>{{ rightPlayer.name }}</el-text>
+          
+          <div class="lp-part1">
+            <el-image :src="rightPlayer.avatar" style="width: 150px; height: 200px"  @click="setRightPlayerScore"></el-image>
+            <el-text @click="setRightPlayerScore">{{ rightPlayer.name }}</el-text>
           </div>
         </div>
       </div>
@@ -33,62 +45,326 @@
           <div class="pp-title">选手池</div>
           <div class="pp-table">
             <el-table :data="playerPool" border :show-header="false">
-              <el-table-column align="center" prop="fist_group" label="第一组"></el-table-column>
-              <el-table-column align="center" prop="second_group" label="第二组"></el-table-column>
-              <el-table-column align="center" prop="third_group" label="第三组"></el-table-column>
-              <el-table-column align="center" prop="forth_group" label="第四组"></el-table-column>
+              <el-table-column align="center" prop="fist_group" label="第一组" />
+              <el-table-column align="center" prop="second_group" label="第二组" />
+              <el-table-column align="center" prop="third_group" label="第三组" />
+              <el-table-column align="center" prop="forth_group" label="第四组" />
             </el-table>
           </div>
         </div>
         <div class="bgm-pool">
           <div class="bp-title">BGM池</div>
           <div class="bp-table">
-            <el-table :data="bgmPool" border :show-header="false">
-              <el-table-column prop="" align="center"></el-table-column>
-              <el-table-column align="center"></el-table-column>
-              <el-table-column align="center"></el-table-column>
+            <el-table :data="formattedBgmPool" border :show-header="false">
+              <el-table-column prop="col1" align="center"></el-table-column>
+              <el-table-column prop="col2" align="center"></el-table-column>
+              <el-table-column prop="col3" align="center"></el-table-column>
             </el-table>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 左选手对话框 -->
+    <el-dialog v-model="leftPlayerDialogVisible" title="修改胜场" @close="closeLeftPlayerDialog">
+      <el-button @click="increaseLeftPlayerScore">增加胜场</el-button>
+      <el-button @click="decreaseLeftPlayerScore">减少胜场</el-button>
+    </el-dialog>
+
+    <!-- 右选手对话框 -->
+    <el-dialog v-model="rightPlayerDialogVisible" title="修改胜场" @close="closeRightPlayerDialog">
+      <el-button @click="increaseRightPlayerScore">增加胜场</el-button>
+      <el-button @click="decreaseRightPlayerScore">减少胜场</el-button>
+    </el-dialog>
   </div>
 </template>
 
 
 
 <script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useStore } from 'vuex'
 
-const bgm = "bgm_name"
-const leftPlayer = {'avatar':'','name':'选手7','firstRoundScore':0, 'skill': ''}
-const rightPlayer = {'avatar':'','name':'选手23','firstRoundScore':0, 'skill': ''}
-const skillPool = []
-const isSelect = true
+const store = useStore()
+const bgm = ref("bgm_name")
+const isSelect = ref(false)
+const leftPlayer = ref({})  // 初始化为空对象
+const rightPlayer = ref({}) // 初始化为空对象
+const currentGroupIndex = ref(0) // 添加当前组索引
 
-console.log(skillPool)
-
-for (let i = 0; i < 12; i++) {
-  const rowIndex = Math.floor(i / 3);
-  if (!skillPool[rowIndex]) {
-    skillPool[rowIndex] = {};
+// 测试数据
+const testData = [
+ {
+    playerId: 1,
+    name: "选手A1",
+    avatar: "https://example.com/avatar1.jpg",
+    group: 0,  // 第一组
+    secondRoundOrder: 1,  // 组内第一名
+    isSecondWinner: true,
+    thirdRoundScore: 0
+  },
+  {
+    playerId: 2,
+    name: "选手A2",
+    avatar: "https://example.com/avatar2.jpg",
+    group: 0,  // 第一组
+    secondRoundOrder: 2,  // 组内第二名
+    isSecondWinner: true,
+    thirdRoundScore: 0
+  },
+  {
+    playerId: 3,
+    name: "选手B1",
+    avatar: "https://example.com/avatar3.jpg",
+    group: 1,  // 第二组
+    secondRoundOrder: 1,
+    isSecondWinner: true,
+    thirdRoundScore: 0
+  },
+  {
+    playerId: 4,
+    name: "选手B2",
+    avatar: "https://example.com/avatar4.jpg",
+    group: 1,
+    secondRoundOrder: 2,
+    isSecondWinner: true,
+    thirdRoundScore: 0
+  },
+  {
+    playerId: 5,
+    name: "选手C1",
+    avatar: "https://example.com/avatar5.jpg",
+    group: 2,
+    secondRoundOrder: 1,
+    isSecondWinner: true,
+    thirdRoundScore: 0
+  },
+  {
+    playerId: 6,
+    name: "选手C2",
+    avatar: "https://example.com/avatar6.jpg",
+    group: 2,
+    secondRoundOrder: 2,
+    isSecondWinner: true,
+    thirdRoundScore: 0
+  },
+  {
+    playerId: 7,
+    name: "选手D1",
+    avatar: "https://example.com/avatar7.jpg",
+    group: 3,
+    secondRoundOrder: 1,
+    isSecondWinner: true,
+    thirdRoundScore: 0
+  },
+  {
+    playerId: 8,
+    name: "选手D2",
+    avatar: "https://example.com/avatar8.jpg",
+    group: 3,
+    secondRoundOrder: 2,
+    isSecondWinner: true,
+    thirdRoundScore: 0
   }
-  skillPool[rowIndex][`skill${(i % 3) + 1}`] = i + 1;
-}
-
-const headerCellStyle = () => {
-  return{
-    backgroundColor: '#c7c7c7',
-    color: 'black',
-    borderColor: '#c7c7c7'
-  }
-}
-
-
-const bgmPool = [
-  [1, 2, 3, 4],
-  [5, 6, 7, 8],
-  [9, 10, 11, 12]
 ];
+
+// 修改 secondRoundWinners 计算属性为使用测试数据
+// const secondRoundWinners = computed(() => {
+//   return testData
+//     .sort((a, b) => {
+//       if (a.group !== b.group) {
+//         return a.group - b.group;
+//     }
+//     return a.secondRoundOrder - b.secondRoundOrder;
+//   });
+// });
+
+
+
+const secondRoundWinners = computed(() => {
+  return store.getters['group/compGroup']
+    .filter(player => player.isSecondWinner === true)
+    .sort((a, b) => {
+      if (a.group !== b.group) {
+        return a.group - b.group;
+    }
+    return a.secondRoundOrder - b.secondRoundOrder;
+  });
+});
+
+// 根据对决规则组织选手池数据
+const playerPool = computed(() => {
+  const winners = secondRoundWinners.value
+  if (winners.length !== 8) return []
+  
+  return [
+    {
+      fist_group: winners[0]?.name || '', // 添加空值判断
+      second_group: winners[2]?.name || '',
+      third_group: winners[4]?.name || '',
+      forth_group: winners[6]?.name || ''
+    },
+    {
+      fist_group: winners[7]?.name || '',
+      second_group: winners[5]?.name || '',
+      third_group: winners[3]?.name || '',
+      forth_group: winners[1]?.name || ''
+    }
+  ]
+})
+
+// 初始化第一组对决选手
+onMounted(() => {
+  const winners = secondRoundWinners.value
+  if (winners.length === 8) {
+    leftPlayer.value = winners[0]  // 第一组第一名
+    rightPlayer.value = winners[7] // 第四组第二名
+    isSelect.value = true
+  }
+})
+
+// 更新选手分数和胜利状态
+const updatePlayerScore = (playerId, score) => {
+  store.dispatch('group/updatePlayerThirdRoundScore', {
+    playerId,
+    score
+  })
+  
+  if (score >= 2) {
+    store.dispatch('group/updatePlayerIsThirdWinnerToWin', playerId)
+  }
+}
+
+
+// 对话框控制
+const leftPlayerDialogVisible = ref(false)
+const rightPlayerDialogVisible = ref(false)
+
+// 打开对话框
+function setLeftPlayerScore() {
+  leftPlayerDialogVisible.value = true
+}
+
+function setRightPlayerScore() {
+  rightPlayerDialogVisible.value = true
+}
+
+// 关闭对话框
+function closeLeftPlayerDialog() {
+  leftPlayerDialogVisible.value = false
+}
+
+function closeRightPlayerDialog() {
+  rightPlayerDialogVisible.value = false
+}
+
+// 增加/减少分数
+function increaseLeftPlayerScore() {
+  if (!leftPlayer.value.thirdRoundScore) {
+    leftPlayer.value.thirdRoundScore = 0
+  }
+  leftPlayer.value.thirdRoundScore += 1
+  updatePlayerScore(leftPlayer.value.playerId, leftPlayer.value.thirdRoundScore)
+  closeLeftPlayerDialog()
+}
+
+function decreaseLeftPlayerScore() {
+  if (!leftPlayer.value.thirdRoundScore) {
+    leftPlayer.value.thirdRoundScore = 0
+  }
+  leftPlayer.value.thirdRoundScore = Math.max(0, leftPlayer.value.thirdRoundScore - 1)
+  updatePlayerScore(leftPlayer.value.playerId, leftPlayer.value.thirdRoundScore)
+  closeLeftPlayerDialog()
+}
+
+function increaseRightPlayerScore() {
+  if (!rightPlayer.value.thirdRoundScore) {
+    rightPlayer.value.thirdRoundScore = 0
+  }
+  rightPlayer.value.thirdRoundScore += 1
+  updatePlayerScore(rightPlayer.value.playerId, rightPlayer.value.thirdRoundScore)
+  closeRightPlayerDialog()
+}
+
+function decreaseRightPlayerScore() {
+  if (!rightPlayer.value.thirdRoundScore) {
+    rightPlayer.value.thirdRoundScore = 0
+  }
+  rightPlayer.value.thirdRoundScore = Math.max(0, rightPlayer.value.thirdRoundScore - 1)
+  updatePlayerScore(rightPlayer.value.playerId, rightPlayer.value.thirdRoundScore)
+  closeRightPlayerDialog()
+}
+
+// 点击下一组按钮的处理函数
+const nextGroup = () => {
+  // 检查是否有胜者（得分达到2分）
+  const hasWinner = leftPlayer.value.thirdRoundScore >= 2 || rightPlayer.value.thirdRoundScore >= 2
+  if (!hasWinner) {
+    return
+  }
+
+  // 如果是最后一组（第4组），可以跳转到下一个页面
+  if (currentGroupIndex.value >= 3) {
+    router.push('/ThirdRound/ThirdRoundWinnerListView') // 如果需要跳转到下一轮
+    return
+  }
+
+  // 切换到下一组
+  currentGroupIndex.value++
+  
+  // 根据新的组索引设置对决选手
+  const winners = secondRoundWinners.value
+  switch(currentGroupIndex.value) {
+    case 1:
+      leftPlayer.value = winners[2]  // 第二组第一名
+      rightPlayer.value = winners[5] // 第三组第二名
+      break
+    case 2:
+      leftPlayer.value = winners[4]  // 第三组第一名
+      rightPlayer.value = winners[3] // 第二组第二名
+      break
+    case 3:
+      leftPlayer.value = winners[6]  // 第四组第一名
+      rightPlayer.value = winners[1] // 第一组第二名
+      break
+  }
+}
+
+// BGM相关数据
+const currentBgm = ref("点击选择BGM")
+const bgmPool = [
+  "Megalovania - Undertale",
+  "One Winged Angel - FF7",
+  "The Only Thing I Know For Real - MGR",
+  "Bury the Light - DMC5",
+  "Red Sun in the Sky - MGR",
+  "It Has To Be This Way - MGR",
+  "Devil Trigger - DMC5",
+  "Rivers in the Desert - P5",
+  "Last Surprise - P5",
+  "Life Will Change - P5",
+  "Take Over - P5R",
+  "I Believe - P5R"
+]
+
+// BGM选择处理函数
+const handleBgmSelect = (bgm) => {
+  currentBgm.value = bgm
+}
+
+// BGM池数据格式化
+const formattedBgmPool = computed(() => {
+  const rows = []
+  for (let i = 0; i < bgmPool.length; i += 3) {
+    rows.push({
+      col1: bgmPool[i] || '',
+      col2: bgmPool[i + 1] || '',
+      col3: bgmPool[i + 2] || ''
+    })
+  }
+  return rows
+})
+
 </script>
 
 <style>
@@ -112,6 +388,7 @@ const bgmPool = [
 .title {
   font-size: 32px;
   font-weight: bold;
+  color: var(--text-color);
 }
 
 .bgm {
@@ -119,7 +396,18 @@ const bgmPool = [
   padding-top: 1%;
   font-weight: bold;
   font-style: italic;
-  text-decoration: underline
+  text-decoration: underline;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.bgm-text:hover {
+  color: #409EFF;
+}
+
+.el-dropdown-menu {
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .player-form {
@@ -154,7 +442,7 @@ const bgmPool = [
 
 .lp-part1 .el-text {
   font-size: 30px;
-  color: black;
+  color: var(--text-color);
   font-style: italic;
   font-weight: normal;
 }
@@ -199,7 +487,7 @@ const bgmPool = [
 
 .score-res {
   font-size: 32px;
-  color: black;
+  color: var(--text-color);
   font-style: italic;
   text-decoration: underline;
 }
@@ -224,6 +512,7 @@ const bgmPool = [
   font-weight: bold;
   font-style: italic;
   text-decoration: underline;
+  color: var(--text-color);
 }
 
 .pp-table, .bp-table {
@@ -239,6 +528,17 @@ const bgmPool = [
   align-items: center;
 }
 
+.bp-title {
+  font-size: 20px;
+  font-weight: bold;
+  font-style: italic;
+  text-decoration: underline;
+  color: var(--text-color);
+}
 
+.bp-table {
+  height: 100%;
+  width: 70%;
+}
 
 </style>
