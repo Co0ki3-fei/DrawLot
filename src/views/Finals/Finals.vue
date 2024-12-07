@@ -1,31 +1,49 @@
 <template>
   <div class="second-round">
     <div class="nextBt">
-      <el-button>下一组</el-button>
-
+      <el-button @click="nextGroup" v-if="title === '巅峰对决 — 三局赛'">下一组</el-button>
     </div>
     <div class="stopLoopBt">
-      <el-button>进入总决赛阶段</el-button>
+      <el-button @click="enterFinals" v-if="title === '巅峰对决 — 三局赛'">进入总决赛阶段</el-button>
+      <el-button @click="endGame" v-if="title === '总决赛'">结束比赛</el-button>
     </div>
     <div class="body">
-      <div class="title">巅峰对决 — 三局赛</div>
-      <div class="bgm">BGM: {{ bgm }}</div>
+      <div class="title">{{ title }}</div>
+      <div class="bgm" @click="showBgmSelect = true">
+        <el-dropdown trigger="click" @command="handleBgmSelect">
+          <span class="bgm-text">BGM: {{ currentBGM }}</span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item 
+                v-for="bgm in bgmPool" 
+                :key="bgm" 
+                :command="bgm"
+              >
+                {{ bgm }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
       <div class="player-form">
         <div class="left-player">
-          <div class="lp-part1">
+          <div class="select-player" v-if="!leftPlayer" @click="setLeftPlayerChoose">
+            选择选手
+          </div>
+          <div class="lp-part1" v-if="leftPlayer" @click="setLeftPlayerScore">
             <el-image :src="leftPlayer.avatar" style="width: 150px; height: 200px" :fit="none"></el-image>
             <el-text>{{ leftPlayer.name }}</el-text>
           </div>
         </div>
         <div class="score">
           <div class="score-txt">VS</div>
-          <div class="score-res">{{ leftPlayer.firstRoundScore }}:{{ rightPlayer.firstRoundScore }}</div>
+          
         </div>
         <div class="right-player">
-          <div class="select-player" v-if="!isSelect">
+          <div class="select-player" v-if="!rightPlayer" @click="setRightPlayerChoose">
             选择选手
           </div>
-          <div class="lp-part1" v-if="isSelect">
+          <div class="lp-part1" v-if="rightPlayer" @click="setRightPlayerScore">
             <el-image :src="rightPlayer.avatar" style="width: 150px; height: 200px" :fit="none"></el-image>
             <el-text>{{ rightPlayer.name }}</el-text>
           </div>
@@ -36,62 +54,281 @@
           <div class="pp-title">选手池</div>
           <div class="pp-table">
             <el-table :data="playerPool" border :show-header="false">
-              <el-table-column align="center" prop="fist_group" label="第一组"></el-table-column>
-              <el-table-column align="center" prop="second_group" label="第二组"></el-table-column>
-              <el-table-column align="center" prop="third_group" label="第三组"></el-table-column>
-              <el-table-column align="center" prop="forth_group" label="第四组"></el-table-column>
+              <el-table-column align="center">
+                <template #default="{ row }">
+                  <span>{{ row[0].name }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column align="center">
+                <template #default="{ row }">
+                  <span>{{ row[1].name }}</span>
+                </template>
+              </el-table-column>
             </el-table>
           </div>
         </div>
         <div class="bgm-pool">
           <div class="bp-title">BGM池</div>
           <div class="bp-table">
-            <el-table :data="bgmPool" border :show-header="false">
-              <el-table-column prop="" align="center"></el-table-column>
-              <el-table-column align="center"></el-table-column>
-              <el-table-column align="center"></el-table-column>
+            <el-table :data="formattedBgmPool" border :show-header="false">
+              <el-table-column align="center">
+                <template #default="{ row }">
+                    <span>{{ row[0] }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column align="center">
+                <template #default="{ row }">
+                  <span>{{ row[1] }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column align="center">
+                <template #default="{ row }">
+                  <span>{{ row[2] }}</span>
+                </template>
+              </el-table-column>
             </el-table>
           </div>
         </div>
       </div>
     </div>
+
+
+    <!-- choose Left Player -->
+    <el-dialog v-model="leftPlayerChooseVisible" title="选择选手" @close="closeLeftPlayerChoose">
+      <div class="button-grid">
+        <div v-for="player in compGroup" :key="player.name" class="button-row">
+          <el-button 
+            type="text" 
+            @click="selectLeftPlayer(player)"
+          >
+            {{ player.name }}
+          </el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <!-- choose Right Player -->
+    <el-dialog v-model="rightPlayerChooseVisible" title="选择选手" @close="closeRightPlayerChoose">
+      <div class="button-grid">
+        <div v-for="player in compGroup" :key="player.name" class="button-row">
+          <el-button 
+            type="text" 
+            @click="selectRightPlayer(player)"
+          >
+            {{ player.name }}
+          </el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
-
-
 <script setup>
+import { ref, computed } from 'vue'
+import { useStore } from 'vuex'
+import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { chunkArray } from '@/utils/utils';
 
-const bgm = "bgm_name"
-const leftPlayer = {'avatar':'','name':'选手7','firstRoundScore':0, 'skill': ''}
-const rightPlayer = {'avatar':'','name':'选手23','firstRoundScore':0, 'skill': ''}
-const skillPool = []
-const isSelect = false
+/**
+ * 初始化
+ */
+const title = ref("巅峰对决 — 三局赛")
+const store = useStore()
+const router = useRouter()
 
-console.log(skillPool)
+// 测试数据
+const testData = ref([
+  {
+    playerId: 1,
+    name: "玩家1",
+    isBetter: true,
+    avatar: "/src/assets/001.jpg",
+    firstRoundGroup: 0,
+    isFirstWinner: true,
+    secondRoundScore: 2,
+    secondRoundOrder: 1,
+    isSecondWinner: true,
+    thirdRoundScore: 2,
+    thirdRoundOrder: 0,
+    isThirdWinner: true,
+    finalScore: 0,
+    finalOrder: 0,
+    isFinalWinner: false
+  },
+  {
+    playerId: 2,
+    name: "玩家2",
+    isBetter: true,
+    avatar: "/src/assets/002.jpg",
+    firstRoundGroup: 0,
+    isFirstWinner: true,
+    secondRoundScore: 2,
+    secondRoundOrder: 1,
+    isSecondWinner: true,
+    thirdRoundScore: 2,
+    thirdRoundOrder: 0,
+    isThirdWinner: true,
+    finalScore: 0,
+    finalOrder: 0,
+    isFinalWinner: false
+  },
+  {
+    playerId: 3,
+    name: "玩家3",
+    isBetter: true,
+    avatar: "/src/assets/003.jpg",
+    firstRoundGroup: 0,
+    isFirstWinner: true,
+    secondRoundScore: 2,
+    secondRoundOrder: 1,
+    isSecondWinner: true,
+    thirdRoundScore: 2,
+    thirdRoundOrder: 0,
+    isThirdWinner: true,
+    finalScore: 0,
+    finalOrder: 0,
+    isFinalWinner: false
+  },
+  {
+    playerId: 4,
+    name: "玩家4",
+    isBetter: true,
+    avatar: "/src/assets/004.jpg",
+    firstRoundGroup: 0,
+    isFirstWinner: true,
+    secondRoundScore: 2,
+    secondRoundOrder: 1,
+    isSecondWinner: true,
+    thirdRoundScore: 2,
+    thirdRoundOrder: 0,
+    isThirdWinner: true,
+    finalScore: 0,
+    finalOrder: 0,
+    isFinalWinner: false
+  },
+])
 
-for (let i = 0; i < 12; i++) {
-  const rowIndex = Math.floor(i / 3);
-  if (!skillPool[rowIndex]) {
-    skillPool[rowIndex] = {};
+// BGM 测试数据
+const bgmPool = ref([
+  "Megalovania - Undertale",
+  "One Winged Angel - FF7",
+  "The Only Thing I Know For Real - MGR",
+  "Bury the Light - DMC5",
+  "Red Sun in the Sky - MGR",
+  "It Has To Be This Way - MGR",
+  "Devil Trigger - DMC5",
+  "Rivers in the Desert - P5",
+  "Last Surprise - P5",
+  "Life Will Change - P5",
+  "Take Over - P5R",
+  "I Believe - P5R"
+])
+
+// 格式化 BGM 池数据
+const formattedBgmPool = chunkArray(bgmPool.value, 3);
+
+
+// 非测试数据来源
+const compGroup = computed(() => {
+  return store.getters['group/compGroup']
+    .filter(player => player.isThirdWinner === true)
+    .sort((a, b) => a.playerId - b.playerId)
+})
+const playerPool = chunkArray(compGroup.value, 2);
+
+
+/**
+ * 对战选手 选择选手 选择BGM 
+ */
+const leftPlayer = ref(null)
+const rightPlayer = ref(null)
+const currentBGM = ref("点击选择BGM")
+const leftPlayerChooseVisible = ref(false)
+const rightPlayerChooseVisible = ref(false)
+const selectLeftPlayer = (player) => {
+  if (player) {
+    if (player === rightPlayer.value) {
+      ElMessage.warning("左右两边不能选择相同的选手！")
+      return
+    }
+    leftPlayer.value = player
+    leftPlayerChooseVisible.value = false
   }
-  skillPool[rowIndex][`skill${(i % 3) + 1}`] = i + 1;
 }
 
-const headerCellStyle = () => {
-  return{
-    backgroundColor: '#c7c7c7',
-    color: 'black',
-    borderColor: '#c7c7c7'
+const selectRightPlayer = (player) => {
+  if (player) {
+    if (player === leftPlayer.value) {
+      ElMessage.warning("左右两边不能选择相同的选手！")
+      return
+    }
+    rightPlayer.value = player
+    rightPlayerChooseVisible.value = false
   }
 }
 
+const setLeftPlayerChoose = () => {
+  leftPlayerChooseVisible.value = true
+}
 
-const bgmPool = [
-  [1, 2, 3, 4],
-  [5, 6, 7, 8],
-  [9, 10, 11, 12]
-];
+const setRightPlayerChoose = () => {
+  rightPlayerChooseVisible.value = true
+}
+
+const closeLeftPlayerChoose = () => {
+  leftPlayerChooseVisible.value = false
+}
+
+const closeRightPlayerChoose = () => {
+  rightPlayerChooseVisible.value = false
+}
+
+
+/**
+ * 下一组 清空已选择的选手 关闭对话框
+ */
+const nextGroup = () => {
+  leftPlayer.value = null
+  rightPlayer.value = null
+  
+  leftPlayerChooseVisible.value = false
+  rightPlayerChooseVisible.value = false
+}
+
+
+
+/**
+ * 进入总决赛阶段处理函数
+ * 更新标题 清空已选择的选手 清空BGM
+ */
+const enterFinals = () => {
+  title.value = "总决赛"
+
+  leftPlayer.value = null
+  rightPlayer.value = null
+
+  currentBGM.value = ''
+
+  leftPlayerChooseVisible.value = false
+  rightPlayerChooseVisible.value = false
+}
+
+
+/**
+ * 处理 BGM 选择
+ */
+const handleBgmSelect = (bgm) => {
+  currentBGM.value = bgm
+}
+
+/**
+ * 结束比赛
+ */
+const endGame = () => {
+  router.push('/Finals/FinalsWinnerList')
+}
+
 </script>
 
 <style>
@@ -124,7 +361,16 @@ const bgmPool = [
   font-weight: bold;
   font-style: italic;
   text-decoration: underline;
-  color: var(--text-color);
+  cursor: pointer;
+}
+
+.bgm-text:hover {
+  color: #409EFF;
+}
+
+.el-dropdown-menu {
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .player-form {
@@ -246,6 +492,21 @@ const bgmPool = [
   align-items: center;
 }
 
+.button-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
 
+.button-row {
+  display: flex;
+  gap: 20px;
+}
+
+.button-row .el-button {
+  font-size: 16px;
+  padding: 10px 20px;
+}
 
 </style>

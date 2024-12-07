@@ -84,7 +84,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const store = useStore()
 const bgm = ref("bgm_name")
 const isSelect = ref(false)
@@ -169,21 +171,8 @@ const testData = [
 ];
 
 // 修改 secondRoundWinners 计算属性为使用测试数据
-// const secondRoundWinners = computed(() => {
-//   return testData
-//     .sort((a, b) => {
-//       if (a.group !== b.group) {
-//         return a.group - b.group;
-//     }
-//     return a.secondRoundOrder - b.secondRoundOrder;
-//   });
-// });
-
-
-
 const secondRoundWinners = computed(() => {
-  return store.getters['group/compGroup']
-    .filter(player => player.isSecondWinner === true)
+  return testData
     .sort((a, b) => {
       if (a.group !== b.group) {
         return a.group - b.group;
@@ -191,6 +180,19 @@ const secondRoundWinners = computed(() => {
     return a.secondRoundOrder - b.secondRoundOrder;
   });
 });
+
+
+
+// const secondRoundWinners = computed(() => {
+//   return store.getters['group/compGroup']
+//     .filter(player => player.isSecondWinner === true)
+//     .sort((a, b) => {
+//       if (a.group !== b.group) {
+//         return a.group - b.group;
+//     }
+//     return a.secondRoundOrder - b.secondRoundOrder;
+//   });
+// });
 
 // 根据对决规则组织选手池数据
 const playerPool = computed(() => {
