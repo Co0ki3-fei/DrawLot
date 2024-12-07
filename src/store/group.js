@@ -22,6 +22,12 @@ const state = () => ({
       if (player) {
         player.firstRoundGroup = firstRoundGroup;
       }
+    },
+    UPDATE_GROUP_IS_FIRST_WINNER(state, playerId){
+      const player = state.compGroup.find(p => p.playerId === playerId);
+      if (player) {
+        player.isFirstWinner = true;
+      }
     }
   };
 
@@ -37,6 +43,9 @@ const state = () => ({
     },
     updateGroupFirstRoundGroup({commit}, obj){
       commit('UPDATE_GROUP_FIRST_ROUND_GROUP', {playerId: obj.playerId, firstRoundGroup: obj.firstRoundGroup})
+    },
+    updateGroupIsFirstWinner({commit}, playerId){
+      commit('UPDATE_GROUP_IS_FIRST_WINNER', playerId)
     }
   };
 

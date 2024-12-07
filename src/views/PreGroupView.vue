@@ -231,7 +231,7 @@ async function nextGroupHandle() {
   }
 
   isRandomScroll.value = true;
-  console.log('轮��开始');
+  console.log('轮播开始');
   randomScroll();
   await delay(300); // 等待 3 秒
   console.log('轮播结束');
@@ -251,10 +251,6 @@ async function nextGroupHandle() {
   // 标志已成组的选手
   infosPartUpper.value.at(highlightedLeftIndex.value).isSelect = true;
   infosPartDowner.value.at(highlightedRightIndex.value).isSelect = true;
-
-  console.log({playerId:highlightedLeftIndex.value, firstRoundGroup: randomRound.value})
-  console.log({playerId:highlightedRightIndex.value, firstRoundGroup: randomRound.value})
-  console.log(store.getters['group/compGroup'])
 
   randomRound.value = randomRound.value+1
 
