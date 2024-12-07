@@ -75,11 +75,12 @@
   font-size: larger;
   font-weight: bolder;
   font-style: italic;
-  color: rgb(33, 128, 223);
+  color: var(--text-color);
 }
 
 .name {
   font-weight: bold;
+  color: var(--text-color);
 }
 
 .el-col {
@@ -95,20 +96,21 @@
   font-size: larger;
   font-weight: bolder;
   font-style: italic;
+  color: var(--text-color);
 }
 
 .group_id {
   font-size: larger;
   font-weight: bolder;
   font-style: italic;
-  color: rgb(33, 128, 223);
+  color: var(--text-color);
 }
 
 .part3_id {
   font-size: larger;
   font-weight: bolder;
   font-style: italic;
-  color: rgb(223, 33, 33);
+  color: var(--text-color);
 }
 
 .mid-part {
@@ -229,7 +231,7 @@ async function nextGroupHandle() {
   }
 
   isRandomScroll.value = true;
-  console.log('轮播开始');
+  console.log('轮��开始');
   randomScroll();
   await delay(300); // 等待 3 秒
   console.log('轮播结束');
