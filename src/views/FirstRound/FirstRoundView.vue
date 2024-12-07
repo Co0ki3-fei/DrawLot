@@ -4,7 +4,7 @@
       <el-button @click="nextGroup">下一组</el-button>
     </div>
     <div class="body">
-      <div class="title">三十二强对决 - {{ group }} 组对决</div>
+      <div class="title">三十二强对决 - {{ String.fromCharCode(65 + currentIndex) }} 组对决</div>
       <div class="bgm">BGM: {{ bgm }}</div>
       <div class="player-form">
 
@@ -138,7 +138,6 @@ for (let i = 0; i < 16; i++) {
 /**
  * dynamic data for UI
  */
-const group = ref(String.fromCharCode(65 + currentIndex.value))
 const bgm = computed(() => {
   return bgms.value && bgms.value[currentIndex.value] ? bgms.value[currentIndex.value] : "bgm_name";
 });
@@ -180,13 +179,12 @@ function nextGroup() {
 
   // push the winner into the global variable
   if(leftPlayer.value.firstRoundScore > rightPlayer.value.firstRoundScore) {
-    store.dispatch('group/updateGroupIsFirstWinner', leftPlayer.value.playerId);
+    store.dispatch('group/updateGroupIsFirstWinnerToWin', leftPlayer.value.playerId);
+    store.dispatch('group/updateGroupIsFirstWinnerToDefeat', rightPlayer.value.playerId);
   } else {
-    store.dispatch('group/updateGroupIsFirstWinner', rightPlayer.value.playerId);
+    store.dispatch('group/updateGroupIsFirstWinnerToWin', rightPlayer.value.playerId);
+    store.dispatch('group/updateGroupIsFirstWinnerToDefeat', leftPlayer.value.playerId);
   }
-
-  // change group
-  group.value = String.fromCharCode(65 + currentIndex.value)
 
   if(currentIndex.value === 2) {
     router.push('/FirstRound/FirstRoundWinnerListView');
