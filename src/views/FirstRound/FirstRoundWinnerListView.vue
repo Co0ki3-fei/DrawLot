@@ -65,7 +65,7 @@ const winnerList = ref([]);
 // 使用过滤后的胜者列表创建显示数据
 for (let index = 0; index < fistRoundWinnerList.value.length; index++) {
   winnerList.value.push({
-    winnerPart1: String.fromCharCode(65 + index),
+    winnerPart1: String.fromCharCode(65 + fistRoundWinnerList.value[index].firstRoundGroup),
     winnerPart2: fistRoundWinnerList.value[index] || "", 
   });
 }
