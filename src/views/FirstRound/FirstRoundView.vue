@@ -1,50 +1,34 @@
 <template>
   <div class="page">
-    <div class="nextBt">
+    <div class="group-selector">
+      <el-select 
+        v-model="currentIndex" 
+        placeholder="选择已完成的对战组"
+        :disabled="completedGroups.length === 0"
+      >
+        <el-option
+          v-for="index in completedGroups"
+          :key="index"
+          :label="`${String.fromCharCode(65 + index)}组`"
+          :value="index"
+        />
+      </el-select>
       <el-button @click="nextGroup">下一组</el-button>
     </div>
     <div class="body">
-      <div class="title">三十二强对决 - {{ String.fromCharCode(65 + currentIndex) }} 组对决</div>
+      <div class="title fire-text">三十二强对决 - {{ String.fromCharCode(65 + currentIndex) }} 组对决</div>
       <div class="bgm">BGM: {{ bgm }}</div>
       <div class="player-form">
 
 
-        <div class="left-player">
-          <div class="lp-part1">
-            <el-popover
-              v-model:visible="leftPlayerPopoverVisible"
-              placement="bottom"
-              :width="200"
-              trigger="click"
-            >
-              <template #reference>
-                <div>
-                  <el-image :src="leftPlayer.avatar" style="width: 150px; height: 200px"></el-image>
-                  <el-text>{{ leftPlayer.name }}</el-text>
-                </div>
-              </template>
-              <div class="score-buttons">
-                <el-button @click="increaseLeftPlayerScore">增加胜场</el-button>
-                <el-button @click="decreaseLeftPlayerScore">减少胜场</el-button>
-              </div>
-            </el-popover>
-          </div>
-          <el-dropdown placement="bottom-start" @command="handleLeftPlayerSkillChange">
-            <el-button class="rp-skill"> <el-text>选用技:</el-text> <el-text>{{ leftPlayer.firstRoundSkill }}</el-text></el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <!-- 使用 v-for 动态生成下拉菜单项 -->
-                <el-dropdown-item
-                  v-for="(skill,index) in skills"
-                  :key="index"
-                  :command="skill"
-                >
-                   {{ skill }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </div>
+        <PlayerCard
+          v-model:player="leftPlayer"
+          :show-skill-select="true"
+          :skills="skills"
+          :max-score="1"
+          @score-change="handleLeftPlayerScoreChange"
+          @skill-change="handleLeftPlayerSkillChange"
+        />
 
 
         <div class="score">
@@ -53,42 +37,14 @@
         </div>
 
 
-        <div class="right-player">
-          <div class="rp-part1">
-            <el-popover
-              v-model:visible="rightPlayerPopoverVisible"
-              placement="bottom"
-              :width="200"
-              trigger="click"
-            >
-              <template #reference>
-                <div>
-                  <el-image :src="rightPlayer.avatar" style="width: 150px; height: 200px"></el-image>
-                  <el-text>{{ rightPlayer.name }}</el-text>
-                </div>
-              </template>
-              <div class="score-buttons">
-                <el-button @click="increaseRightPlayerScore">增加胜场</el-button>
-                <el-button @click="decreaseRightPlayerScore">减少胜场</el-button>
-              </div>
-            </el-popover>
-          </div>
-          <el-dropdown placement="bottom-start" @command="handleRightPlayerSkillChange">
-            <el-button class="rp-skill"> <el-text>选用技:</el-text>&nbsp;<el-text>{{ rightPlayer.firstRoundSkill }}</el-text> </el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <!-- 使用 v-for 动态生成下拉菜单项 -->
-                <el-dropdown-item
-                  v-for="(skill,index) in skills"
-                  :key="index"
-                  :command="skill"
-                >
-                   {{ skill }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </div>
+        <PlayerCard
+          v-model:player="rightPlayer"
+          :show-skill-select="true"
+          :skills="skills"
+          :max-score="1"
+          @score-change="handleRightPlayerScoreChange"
+          @skill-change="handleRightPlayerSkillChange"
+        />
       </div>
       <div class="skill" >
         <div class="skill-title">技池</div>
@@ -123,6 +79,7 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import {chunkArray} from "@/utils/utils.js";
 import { ElMessage } from 'element-plus'
+import PlayerCard from '@/components/PlayerCard.vue';
 
 
 /**
@@ -144,9 +101,9 @@ const currentIndex = ref(0);
 for (let i = 0; i < 16; i++) {
   compGroup.value.forEach((player)=>{
     if (player.firstRoundGroup === i && player.isBetter){
-      compGroupLeft.value.push({...player, firstRoundScore:0, firstRoundSkill:''})
+      compGroupLeft.value.push({...player,firstRoundScore:player.firstRoundScore ?? 0})
     }else if(player.firstRoundGroup === i && !player.isBetter){
-      compGroupRight.value.push({...player, firstRoundScore:0, firstRoundSkill:''})
+      compGroupRight.value.push({...player, firstRoundScore:player.firstRoundScore ?? 0})
     }
   })
 }
@@ -185,7 +142,7 @@ skillPool.value = chunkArray(skills.value, chunkSize);
 function nextGroup() {
   if (!hasWinner.value) {
     ElMessage({
-      message: '请先选出胜者后再进行下一组比赛',
+      message: '请先选出胜者，再进行下一组比赛',
       type: 'error',
       duration: 2000
     })
@@ -194,9 +151,13 @@ function nextGroup() {
 
   // push the winner into the global variable
   if(leftPlayer.value.firstRoundScore > rightPlayer.value.firstRoundScore) {
+    leftPlayer.value.isFirstWinner = true
+    rightPlayer.value.isFirstWinner = false
     store.dispatch('group/updateGroupIsFirstWinnerToWin', leftPlayer.value.playerId);
     store.dispatch('group/updateGroupIsFirstWinnerToDefeat', rightPlayer.value.playerId);
   } else {
+    leftPlayer.value.isFirstWinner = false
+    rightPlayer.value.isFirstWinner = true
     store.dispatch('group/updateGroupIsFirstWinnerToWin', rightPlayer.value.playerId);
     store.dispatch('group/updateGroupIsFirstWinnerToDefeat', leftPlayer.value.playerId);
   }
@@ -208,48 +169,71 @@ function nextGroup() {
   currentIndex.value += 1
 }
 
-/**
- * use dialog and dropdown to modify the player's score and selected skill
- */
-const leftPlayerPopoverVisible = ref(false);
-const rightPlayerPopoverVisible = ref(false);
-
-function increaseLeftPlayerScore() {
-  leftPlayer.value.firstRoundScore += 1;
-  leftPlayerPopoverVisible.value = false;
+function handleLeftPlayerScoreChange(_, v) {
+  leftPlayer.value.firstRoundScore = v;
+  // 同步到 store
+  store.dispatch('group/updatePlayerFirstRoundScore', {
+    playerId: leftPlayer.value.playerId,
+    score: v
+  });
 }
 
-function decreaseLeftPlayerScore() {
-  leftPlayer.value.firstRoundScore -= 1;
-  leftPlayerPopoverVisible.value = false;
-}
-
-function increaseRightPlayerScore() {
-  rightPlayer.value.firstRoundScore += 1;
-  rightPlayerPopoverVisible.value = false;
-}
-
-function decreaseRightPlayerScore() {
-  rightPlayer.value.firstRoundScore -= 1;
-  rightPlayerPopoverVisible.value = false;
+function handleRightPlayerScoreChange(_, v) {
+  rightPlayer.value.firstRoundScore = v;
+  // 同步到 store
+  store.dispatch('group/updatePlayerFirstRoundScore', {
+    playerId: rightPlayer.value.playerId,
+    score: v
+  });
 }
 
 function handleLeftPlayerSkillChange(skill) {
   leftPlayer.value.firstRoundSkill = skill;
+  // 同步到 store
+  store.dispatch('group/updatePlayerFirstRoundSkill', {
+    playerId: leftPlayer.value.playerId,
+    skill: skill
+  });
 }
 
 function handleRightPlayerSkillChange(skill) {
   rightPlayer.value.firstRoundSkill = skill;
+  // 同步到 store
+  store.dispatch('group/updatePlayerFirstRoundSkill', {
+    playerId: rightPlayer.value.playerId,
+    skill: skill
+  });
 }
+
+// 计算已完成比赛的组
+const completedGroups = computed(() => {
+  const groups = [];
+  for (let i = 0; i < compGroupLeft.value.length; i++) {
+    const leftPlayer = compGroupLeft.value[i];
+    const rightPlayer = compGroupRight.value[i];
+    
+    // 检查这一组是否有胜者（即比赛是否完成）
+    if (leftPlayer && rightPlayer && 
+        (leftPlayer.isFirstWinner || rightPlayer.isFirstWinner)) {
+      groups.push(i);
+    }
+  }
+  return groups;
+});
 
 </script>
 
 <style>
-.nextBt {
+.group-selector {
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
   padding-top: 2%;
   padding-right: 2%;
+}
+
+.group-selector .el-select {
+  width: 120px;
 }
 
 .body {

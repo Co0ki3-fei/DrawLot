@@ -64,8 +64,19 @@ const mutations = {
 		if (player) {
 			player.isThirdWinner = false
 		}
+	},
+	UPDATE_PLAYER_FIRST_ROUND_SCORE(state, { playerId, score }) {
+		const player = state.compGroup.find(p => p.playerId === playerId);
+		if (player) {
+			player.firstRoundScore = score;
+		}
+	},
+	UPDATE_PLAYER_FIRST_ROUND_SKILL(state, { playerId, skill }) {
+		const player = state.compGroup.find(p => p.playerId === playerId);
+		if (player) {
+			player.firstRoundSkill = skill;
+		}
 	}
-
 };
 
   const actions = {
@@ -87,12 +98,12 @@ const mutations = {
     updateGroupIsFirstWinnerToDefeat({commit}, playerId){
       commit('UPDATE_GROUP_IS_FIRST_WINNER_TO_DEFEAT', playerId)
     },
-		updatePlayerSecondRoundScore({ commit }, payload) {
-			commit('UPDATE_PLAYER_SECOND_ROUND_SCORE', payload)
-		},
-		updatePlayerSecondRoundOrder({ commit }, payload) {
-			commit('UPDATE_PLAYER_SECOND_ROUND_ORDER', payload)
-		},
+	updatePlayerSecondRoundScore({ commit }, payload) {
+		commit('UPDATE_PLAYER_SECOND_ROUND_SCORE', payload)
+	},
+	updatePlayerSecondRoundOrder({ commit }, payload) {
+		commit('UPDATE_PLAYER_SECOND_ROUND_ORDER', payload)
+	},
     updatePlayerThirdRoundScore({ commit }, payload) {
       commit('UPDATE_PLAYER_THIRD_ROUND_SCORE', payload)
     },
@@ -101,7 +112,13 @@ const mutations = {
     },
     updatePlayerIsThirdWinnerToDefeat({ commit }, playerId) {
       commit('UPDATE_PLAYER_IS_THIRD_WINNER_TO_DEFEAT', playerId)
-    }
+    },
+	updatePlayerFirstRoundScore({ commit }, payload) {
+		commit('UPDATE_PLAYER_FIRST_ROUND_SCORE', payload);
+	},
+	updatePlayerFirstRoundSkill({ commit }, payload) {
+		commit('UPDATE_PLAYER_FIRST_ROUND_SKILL', payload);
+	}
   };
 
 const getters = {

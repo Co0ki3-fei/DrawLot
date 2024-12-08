@@ -20,6 +20,11 @@
         进入下一轮
     </el-button>
   </div>
+  <div class="back-bt">
+    <el-button @click="goBack">
+        返回列表
+    </el-button>
+  </div>
 </div>
 </template>
 
@@ -42,6 +47,10 @@
 .winner-list {
     width: 30%;
     padding-bottom: 5%;
+}
+
+.back-bt {
+    margin-top: 20px;
 }
 </style>
 
@@ -75,6 +84,10 @@ for (let index = 0; index < fistRoundWinnerList.value.length; index++) {
 
 function nextRound() {
     router.push('/SecondRound/SecondRoundView');
+}
+
+function goBack() {
+    router.back();
 }
 
 </script>
