@@ -11,11 +11,26 @@
 
         <div class="left-player">
           <div class="lp-part1">
-            <el-image :src="leftPlayer.avatar" style="width: 150px; height: 200px" @click="setLeftPlayerScore"></el-image>
-            <el-text @click="setLeftPlayerScore">{{ leftPlayer.name }}</el-text>
+            <el-popover
+              v-model:visible="leftPlayerPopoverVisible"
+              placement="bottom"
+              :width="200"
+              trigger="click"
+            >
+              <template #reference>
+                <div>
+                  <el-image :src="leftPlayer.avatar" style="width: 150px; height: 200px"></el-image>
+                  <el-text>{{ leftPlayer.name }}</el-text>
+                </div>
+              </template>
+              <div class="score-buttons">
+                <el-button @click="increaseLeftPlayerScore">增加胜场</el-button>
+                <el-button @click="decreaseLeftPlayerScore">减少胜场</el-button>
+              </div>
+            </el-popover>
           </div>
           <el-dropdown placement="bottom-start" @command="handleLeftPlayerSkillChange">
-            <el-button class="rp-skill"> <el-text>选用技:</el-text> {{ leftPlayer.firstRoundSkill }}</el-button>
+            <el-button class="rp-skill"> <el-text>选用技:</el-text> <el-text>{{ leftPlayer.firstRoundSkill }}</el-text></el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <!-- 使用 v-for 动态生成下拉菜单项 -->
@@ -40,11 +55,26 @@
 
         <div class="right-player">
           <div class="rp-part1">
-            <el-image :src="rightPlayer.avatar" style="width: 150px; height: 200px" @click="setRightPlayerScore"></el-image>
-          <el-text @click="setRightPlayerScore">{{ rightPlayer.name }}</el-text>
+            <el-popover
+              v-model:visible="rightPlayerPopoverVisible"
+              placement="bottom"
+              :width="200"
+              trigger="click"
+            >
+              <template #reference>
+                <div>
+                  <el-image :src="rightPlayer.avatar" style="width: 150px; height: 200px"></el-image>
+                  <el-text>{{ rightPlayer.name }}</el-text>
+                </div>
+              </template>
+              <div class="score-buttons">
+                <el-button @click="increaseRightPlayerScore">增加胜场</el-button>
+                <el-button @click="decreaseRightPlayerScore">减少胜场</el-button>
+              </div>
+            </el-popover>
           </div>
           <el-dropdown placement="bottom-start" @command="handleRightPlayerSkillChange">
-            <el-button class="rp-skill"> <el-text>选用技:</el-text>{{ rightPlayer.firstRoundSkill }} </el-button>
+            <el-button class="rp-skill"> <el-text>选用技:</el-text>&nbsp;<el-text>{{ rightPlayer.firstRoundSkill }}</el-text> </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <!-- 使用 v-for 动态生成下拉菜单项 -->
@@ -83,23 +113,7 @@
         </div>
       </div>
     </div>
-
-     <!-- dialog for Left Player -->
-     <el-dialog v-model="leftPlayerDialogVisible" title="修改胜场" @close="closeLeftPlayerDialog">
-        <el-button @click="increaseLeftPlayerScore">增加胜场</el-button>
-        <el-button @click="decreaseLeftPlayerScore">减少胜场</el-button>
-      </el-dialog>
-
-
-
-    <!-- dialog for Right Player -->
-    <el-dialog v-model="rightPlayerDialogVisible" title="修改胜场" @close="closeRightPlayerDialog">
-    <el-button @click="increaseRightPlayerScore">增加胜场</el-button>
-    <el-button @click="decreaseRightPlayerScore">减少胜场</el-button>
-    </el-dialog>
   </div>
-
-
 </template>
 
 
@@ -108,6 +122,7 @@ import {ref, computed } from 'vue'
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import {chunkArray} from "@/utils/utils.js";
+import { ElMessage } from 'element-plus'
 
 
 /**
@@ -168,7 +183,14 @@ skillPool.value = chunkArray(skills.value, chunkSize);
  * a total of 16 rounds will be held
  */
 function nextGroup() {
-  if (!hasWinner.value) return
+  if (!hasWinner.value) {
+    ElMessage({
+      message: '请先选出胜者后再进行下一组比赛',
+      type: 'error',
+      duration: 2000
+    })
+    return
+  }
 
   // push the winner into the global variable
   if(leftPlayer.value.firstRoundScore > rightPlayer.value.firstRoundScore) {
@@ -189,42 +211,27 @@ function nextGroup() {
 /**
  * use dialog and dropdown to modify the player's score and selected skill
  */
-const leftPlayerDialogVisible = ref(false);
-const rightPlayerDialogVisible = ref(false);
-function setLeftPlayerScore() {
-  leftPlayerDialogVisible.value = true;
-}
-
-function setRightPlayerScore() {
-  rightPlayerDialogVisible.value = true;
-}
-
-function closeLeftPlayerDialog() {
-  leftPlayerDialogVisible.value = false;
-}
-
-function closeRightPlayerDialog() {
-  rightPlayerDialogVisible.value = false;
-}
+const leftPlayerPopoverVisible = ref(false);
+const rightPlayerPopoverVisible = ref(false);
 
 function increaseLeftPlayerScore() {
   leftPlayer.value.firstRoundScore += 1;
-  closeLeftPlayerDialog();
+  leftPlayerPopoverVisible.value = false;
 }
 
 function decreaseLeftPlayerScore() {
   leftPlayer.value.firstRoundScore -= 1;
-  closeLeftPlayerDialog();
+  leftPlayerPopoverVisible.value = false;
 }
 
 function increaseRightPlayerScore() {
   rightPlayer.value.firstRoundScore += 1;
-  closeRightPlayerDialog();
+  rightPlayerPopoverVisible.value = false;
 }
 
 function decreaseRightPlayerScore() {
   rightPlayer.value.firstRoundScore -= 1;
-  closeRightPlayerDialog();
+  rightPlayerPopoverVisible.value = false;
 }
 
 function handleLeftPlayerSkillChange(skill) {
@@ -323,6 +330,7 @@ function handleRightPlayerSkillChange(skill) {
   font-style: italic;
   text-decoration: none;
   padding-bottom: 2px;
+  margin-right: 8px;
 }
 
 .lp-skill .el-text::after {
@@ -383,6 +391,7 @@ function handleRightPlayerSkillChange(skill) {
   font-style: italic;
   text-decoration: none;
   padding-bottom: 2px;
+  margin-right: 8px;
 }
 
 .rp-skill .el-text::after {
@@ -436,5 +445,11 @@ function handleRightPlayerSkillChange(skill) {
 
 .skill-pool {
   width: 50%;
+}
+
+.score-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 </style>
