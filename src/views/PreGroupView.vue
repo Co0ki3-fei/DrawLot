@@ -138,7 +138,7 @@
 </style>
 
 <script setup>
-import {ref, onMounted, computed} from 'vue'
+import {ref, onMounted, computed, nextTick} from 'vue'
 import {useStore} from 'vuex';
 import {useRouter} from 'vue-router';
 import players from '@/assets/player.json'
@@ -176,32 +176,42 @@ onMounted(async () => {
       })
     );
 
-    infos.value = players.map((player) => {
-      let info = {
-        playerId: player.playerId,
-        name: player.name,
-        isBetter: player.isBetter,
-        avatar: player.avatar,
+    if (compGroup.value && compGroup.value.length > 0) {
+      console.log("load pre round from store")
+      infos.value = compGroup.value.map((player) => {
+        return {...player, isSelect: player.firstRoundGroup !== -1};
+      });
+    } else {
+      console.log("first open pre round, generated data")
+      infos.value = players.map((player) => {
+        let info = {
+          playerId: player.playerId,
+          name: player.name,
+          isBetter: player.isBetter,
+          avatar: player.avatar,
 
-        firstRoundGroup: -1, /*0~15对应A~P*/
-        isFirstWinner: false,
+          firstRoundGroup: -1, /*0~15对应A~P*/
+          isFirstWinner: false,
 
-        secondRoundScore: 0,
-        secondRoundOrder: 0,
+          secondRoundScore: 0,
+          secondRoundOrder: 0,
 
-        thirdRoundScore: 0,
-        thirdRoundOrder: 0,
-        isThirdWinner: false,
+          thirdRoundScore: 0,
+          thirdRoundOrder: 0,
+          isThirdWinner: false,
 
-        finalScore: 0,
-        finalOrder: 0,
-        isFinalWinner: false
-      }
+          finalScore: 0,
+          finalOrder: 0,
+          isFinalWinner: false
+        }
 
-      store.dispatch('group/addToGroup', info)
+        store.dispatch('group/addToGroup', info)
 
-      return info
-    });
+        return info
+      });
+    }
+
+
 
     infosPartUpper.value = infos.value.filter((item) => {
       return  item.isBetter
@@ -209,6 +219,15 @@ onMounted(async () => {
     infosPartDowner.value = infos.value.filter((item) => {
       return  !item.isBetter
     });
+
+    compGroupLeft.value = infos.value
+        .filter(player => player.isBetter && player.firstRoundGroup !== -1)
+        .sort((l,r)=>l.firstRoundGroup-r.firstRoundGroup)
+    compGroupRight.value = infos.value
+        .filter(player => !player.isBetter && player.firstRoundGroup !== -1)
+        .sort((l,r)=>l.firstRoundGroup-r.firstRoundGroup)
+
+    randomRound.value = compGroupRight.value.length
 
     loading.value = false;
   } catch (error) {
@@ -232,7 +251,7 @@ async function nextGroupHandle() {
   isRandomScroll.value = true;
   console.log('轮播开始');
   randomScroll();
-  await delay(300); // 等待 3 秒
+  await delay(1000 - randomRound.value * 60); // 后面的轮次，轮播时间略短一点
   console.log('轮播结束');
   isRandomScroll.value = false;
 
@@ -256,21 +275,26 @@ async function nextGroupHandle() {
 }
 
 function randomScroll() {
+  let offset1 = Math.floor(Math.random() * infosPartUpper.value.length);
+  let offset2 = Math.floor(Math.random() * infosPartDowner.value.length);
+  highlightedLeftIndex.value = (highlightedLeftIndex.value + offset1) % infosPartUpper.value.length;
+  highlightedRightIndex.value = (highlightedRightIndex.value + offset2) % infosPartDowner.value.length;
+
   const interval = setInterval(() => {
     if (!isRandomScroll.value) {
       clearInterval(interval);
       return;
     }
 
-    highlightedLeftIndex.value = getRandomIndex(infosPartUpper.value);
-    highlightedRightIndex.value = getRandomIndex(infosPartDowner.value);
-  }, 150);
+    highlightedLeftIndex.value = getNextIndex(infosPartUpper.value, highlightedLeftIndex.value);
+    highlightedRightIndex.value = getNextIndex(infosPartDowner.value, highlightedRightIndex.value);
+  }, 50);
 }
 
-function getRandomIndex(arr) {
-  let index;
+function getNextIndex(arr, prev) {
+  let index = prev;
   do {
-    index = Math.floor(Math.random() * arr.length);
+    index = (index + 1) % arr.length;
   } while (arr[index].isSelect);
   return index;
 }

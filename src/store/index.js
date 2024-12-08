@@ -1,5 +1,6 @@
 import { createStore } from 'vuex';
 import group from './group';
+import createPersistedState from "vuex-persistedstate"
 
 export default createStore({
   state() {
@@ -39,4 +40,5 @@ export default createStore({
       return state.message.toUpperCase();
     },
   },
+  plugins: [createPersistedState()],
 });
