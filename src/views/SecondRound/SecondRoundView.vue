@@ -1,21 +1,25 @@
 <template>
   <div class="second-round">
     <div class="nextBt">
-      <el-button @click="nextGroupHandler">下一组</el-button>
-    </div>
-
-    <div class="stopLoopBt">
+      <el-select v-model="currentGroup" placeholder="请选择当前组别">
+        <el-option
+          v-for="i in 4"
+          :key="i"
+          :label="`第${i}组`"
+          :value="i-1"
+        />
+      </el-select>
+      <div style="width: 10px;"></div>
       <el-button @click="finishGroupLoopHandler">结束小组循环</el-button>
     </div>
 
     <div class="body">
-      <div class="title">十六强对决</div>
+      <div class="title fire-text">十六强对决</div>
 
       <el-dropdown placement="bottom-start" @command="bgmChooseHandler" style="border: 0">
         <el-button class="bgm" style="border: 0"> {{ currentBGM ? "BGM: "+currentBGM : '请选择BGM' }}</el-button>
         <template #dropdown>
           <el-dropdown-menu>
-            <!-- 使用 v-for 动态生成下拉菜单项 -->
             <el-dropdown-item
               v-for="(bgm,index) in bgms"
               :key="index"
@@ -28,32 +32,34 @@
       </el-dropdown>
 
       <div class="player-form">
+        <PlayerCard
+          v-model:player="leftPlayer"
+          :allow-player-change="true"
+          :max-score="3"
+          :fetch-score="player => player.secondRoundScore || 0"
+          @score-change="updateLeftPlayerScore"
+          @select-player="setLeftPlayerChoose"
+          @reset-player="resetLeftPlayer"
+        />
 
-        <div class="left-player">
-          <div class="select-player" v-if="!leftPlayer" @click="setLeftPlayerChoose">
-            选择选手
-          </div>
-          <div class="lp-part1" v-if="leftPlayer" @click="setLeftPlayerScore">
-            <el-image :src="leftPlayer.avatar" style="width: 150px; height: 200px" :fit="none"></el-image>
-            <el-text>{{ leftPlayer.name }}</el-text>
-          </div>
-        </div>
         <div class="score">
-
           <div class="score-txt">VS</div>
-
-        </div>
-        <div class="right-player">
-          <div class="select-player" v-if="!rightPlayer" @click="setRightPlayerChoose">
-            选择选手
-          </div>
-          <div class="lp-part1" v-if="rightPlayer" @click="setRightPlayerScore">
-            <el-image :src="rightPlayer.avatar" style="width: 150px; height: 200px" :fit="none"></el-image>
-            <el-text>{{ rightPlayer.name }}</el-text>
+          <div class="total-score" v-if="leftPlayer && rightPlayer">
+            {{ leftPlayer.secondRoundScore || 0 }} : {{ rightPlayer.secondRoundScore || 0 }}
           </div>
         </div>
 
+        <PlayerCard
+          v-model:player="rightPlayer"
+          :allow-player-change="true"
+          :max-score="3"
+          :fetch-score="player => player.secondRoundScore || 0"
+          @score-change="updateRightPlayerScore"
+          @select-player="setRightPlayerChoose"
+          @reset-player="resetRightPlayer"
+        />
       </div>
+
       <div class="pool">
         <div class="player-pool">
           <div class="pp-title">选手池</div>
@@ -107,52 +113,59 @@
       </div>
     </div>
 
-    <!-- dialog for Left Player -->
-    <el-dialog v-model="leftPlayerDialogVisible" title="修改胜场" @close="closeLeftPlayerDialog">
-      <el-button @click="increaseLeftPlayerScore">增加胜场</el-button>
-      <el-button @click="decreaseLeftPlayerScore">减少胜场</el-button>
-    </el-dialog>
-    <!-- dialog for Right Player -->
-    <el-dialog v-model="rightPlayerDialogVisible" title="修改胜场" @close="closeRightPlayerDialog">
-      <el-button @click="increaseRightPlayerScore">增加胜场</el-button>
-      <el-button @click="decreaseRightPlayerScore">减少胜场</el-button>
-    </el-dialog>
-    <!-- choose Left Player -->
-    <el-dialog v-model="leftPlayerChooseVisible" title="选择选手" @close="closeLeftPlayerChoose">
-      <el-row>
-        <el-col v-for="(group, rowIndex) in playerPool" :key="rowIndex">
-          <el-row>
-            <el-col :span="6" v-for="(player) in group" :key="player">
-              <el-button type="text" @click="selectLeftPlayer(player)">{{ player.name }}</el-button>
-            </el-col>
-          </el-row>
-        </el-col>
-      </el-row>
-    </el-dialog>
-    <!-- choose Right Player -->
-    <el-dialog v-model="rightPlayerChooseVisible" title="选择选手" @close="closeRightPlayerChoose">
-      <el-row>
-        <el-col v-for="(group, rowIndex) in playerPool" :key="rowIndex">
-          <el-row>
-            <el-col :span="6" v-for="(player) in group" :key="player">
-              <el-button type="text" @click="selectRightPlayer(player)">{{ player.name }}</el-button>
-            </el-col>
-          </el-row>
-        </el-col>
-      </el-row>
+    <el-dialog 
+      v-model="leftPlayerChooseVisible" 
+      :title="`选择第${currentGroup + 1}组选手`" 
+      @close="closeLeftPlayerChoose"
+      width="30%"
+    >
+      <div class="player-select-list">
+        <el-card 
+          v-for="player in currentGroupPlayers" 
+          :key="player.playerId"
+          :class="{ 'disabled-card': player.playerId === rightPlayer?.playerId }"
+          :shadow="player.playerId === rightPlayer?.playerId ? 'never' : 'hover'"
+          @click="player.playerId !== rightPlayer?.playerId && selectLeftPlayer(player)"
+        >
+          <div class="player-select-item">
+            <el-avatar :size="50" :src="player.avatar" />
+            <span class="player-name">{{ player.name }}</span>
+          </div>
+        </el-card>
+      </div>
     </el-dialog>
 
+    <el-dialog 
+      v-model="rightPlayerChooseVisible" 
+      :title="`选择第${currentGroup + 1}组选手`" 
+      @close="closeRightPlayerChoose"
+      width="30%"
+    >
+      <div class="player-select-list">
+        <el-card 
+          v-for="player in currentGroupPlayers" 
+          :key="player.playerId"
+          :class="{ 'disabled-card': player.playerId === leftPlayer?.playerId }"
+          :shadow="player.playerId === leftPlayer?.playerId ? 'never' : 'hover'"
+          @click="player.playerId !== leftPlayer?.playerId && selectRightPlayer(player)"
+        >
+          <div class="player-select-item">
+            <el-avatar :size="50" :src="player.avatar" />
+            <span class="player-name">{{ player.name }}</span>
+          </div>
+        </el-card>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
-
 <script setup>
-
-import {useRouter} from "vue-router";
-import {useStore} from "vuex";
-import {computed, ref} from "vue";
-import {chunkArray} from "@/utils/utils.js";
-import {ElMessage} from "element-plus";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import { computed, ref, watch } from "vue";
+import { chunkArray } from "@/utils/utils.js";
+import { ElMessage } from "element-plus";
+import PlayerCard from '@/components/PlayerCard.vue';
 
 const router = useRouter();
 const store = useStore();
@@ -160,266 +173,7 @@ const store = useStore();
 const bgms = computed(() => store.getters['group/getBgm']);
 const compGroup = computed(() => store.getters['group/compGroup']);
 console.log(compGroup)
-/*
-const compGroup = ref([
-  {
-    playerId: 1,
-    name: "玩家1",
-    isBetter: true,
-    avatar: "/src/assets/001.jpg",
-    firstRoundGroup: 0,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 2,
-    name: "玩家2",
-    isBetter: true,
-    avatar: "/src/assets/002.jpg",
-    firstRoundGroup: 1,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 3,
-    name: "玩家3",
-    isBetter: true,
-    avatar: "/src/assets/003.jpg",
-    firstRoundGroup: 2,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 4,
-    name: "玩家4",
-    isBetter: true,
-    avatar: "/src/assets/004.jpg",
-    firstRoundGroup: 3,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 5,
-    name: "玩家5",
-    isBetter: true,
-    avatar: "/src/assets/005.jpg",
-    firstRoundGroup: 4,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 6,
-    name: "玩家6",
-    isBetter: true,
-    avatar: "/src/assets/006.jpg",
-    firstRoundGroup: 5,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 7,
-    name: "玩家7",
-    isBetter: true,
-    avatar: "/src/assets/007.jpg",
-    firstRoundGroup: 6,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 8,
-    name: "玩家8",
-    isBetter: true,
-    avatar: "/src/assets/008.jpg",
-    firstRoundGroup: 7,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 9,
-    name: "玩家9",
-    isBetter: true,
-    avatar: "/src/assets/009.jpg",
-    firstRoundGroup: 8,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 10,
-    name: "玩家10",
-    isBetter: true,
-    avatar: "/src/assets/010.jpg",
-    firstRoundGroup: 9,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 11,
-    name: "玩家11",
-    isBetter: true,
-    avatar: "/src/assets/011.jpg",
-    firstRoundGroup: 10,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 12,
-    name: "玩家12",
-    isBetter: true,
-    avatar: "/src/assets/012.jpg",
-    firstRoundGroup: 11,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 13,
-    name: "玩家13",
-    isBetter: true,
-    avatar: "/src/assets/013.jpg",
-    firstRoundGroup: 12,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 14,
-    name: "玩家14",
-    isBetter: true,
-    avatar: "/src/assets/014.jpg",
-    firstRoundGroup: 13,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 15,
-    name: "玩家15",
-    isBetter: true,
-    avatar: "/src/assets/015.jpg",
-    firstRoundGroup: 14,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 16,
-    name: "玩家16",
-    isBetter: true,
-    avatar: "/src/assets/016.jpg",
-    firstRoundGroup: 15,
-    isFirstWinner: true,
-    secondRoundScore: 0,
-    secondRoundOrder: 0,
-    thirdRoundScore: 0,
-    thirdRoundOrder: 0,
-    isThirdWinner: false,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  }
-])
-*/
+
 const playerPool = ref([])
 for (let i = 0; i < 4; i++) {
   playerPool.value.push(compGroup.value.filter((player) => {
@@ -437,31 +191,29 @@ const bgmChooseHandler = (bgm)=>{
 
 const leftPlayer = ref(null)
 const rightPlayer = ref(null)
-const selectLeftPlayer = (player) =>{
-  console.log(player)
-  if (player.playerId === rightPlayer.value?.playerId){
-    ElMessage({
-      message: '请选择不同的对手',
-      type: 'warning'
-    })
-    closeLeftPlayerChoose()
-    return
-  }
-  leftPlayer.value = player
-  closeLeftPlayerChoose()
+
+const updateLeftPlayerScore = (playerId, newScore) => {
+  const totalScore = store.getters['group/compGroup'].find(p => p.playerId === playerId)?.secondRoundScore || 0
+  store.dispatch('group/updatePlayerSecondRoundScore', {
+    playerId: playerId,
+    score: newScore
+  });
 }
-const selectRightPlayer = (player) =>{
-  console.log(player)
-  if (player.playerId === leftPlayer.value?.playerId){
-    ElMessage({
-      message: '请选择不同的对手',
-      type: 'warning'
-    })
-    closeRightPlayerChoose()
-    return
-  }
-  rightPlayer.value = player
-  closeRightPlayerChoose()
+
+const updateRightPlayerScore = (playerId, newScore) => {
+  const totalScore = store.getters['group/compGroup'].find(p => p.playerId === playerId)?.secondRoundScore || 0
+  store.dispatch('group/updatePlayerSecondRoundScore', {
+    playerId: playerId,
+    score: newScore
+  });
+}
+
+const resetLeftPlayer = () => {
+  leftPlayer.value = null;
+}
+
+const resetRightPlayer = () => {
+  rightPlayer.value = null;
 }
 
 const headerCellStyle = () => {
@@ -481,71 +233,82 @@ const finishGroupLoopHandler = ()=>{
   return
 }
 
-/**
- * use dialog and dropdown to modify the player's score and selected skill
- */
-const leftPlayerDialogVisible = ref(false);
-const rightPlayerDialogVisible = ref(false);
 const leftPlayerChooseVisible = ref(false);
 const rightPlayerChooseVisible = ref(false);
 
-function setLeftPlayerScore() {
-  leftPlayerDialogVisible.value = true;
-}
-function setRightPlayerScore() {
-  rightPlayerDialogVisible.value = true;
-}
-function closeLeftPlayerDialog() {
-  leftPlayerDialogVisible.value = false;
-}
-function closeRightPlayerDialog() {
-  rightPlayerDialogVisible.value = false;
-}
 function setLeftPlayerChoose() {
   leftPlayerChooseVisible.value = true;
 }
+
 function setRightPlayerChoose() {
   rightPlayerChooseVisible.value = true;
 }
+
 function closeLeftPlayerChoose() {
   leftPlayerChooseVisible.value = false;
 }
+
 function closeRightPlayerChoose() {
   rightPlayerChooseVisible.value = false;
 }
 
-
-function increaseLeftPlayerScore() {
-  store.dispatch('group/updatePlayerSecondRoundScore',
-    {playerId: leftPlayer.value.playerId, score: leftPlayer.value.secondRoundScore + 1})
-  console.log(compGroup)
-  closeLeftPlayerDialog();
-}
-function decreaseLeftPlayerScore() {
-  store.dispatch('group/updatePlayerSecondRoundScore',
-    {playerId: leftPlayer.value.playerId, score: leftPlayer.value.secondRoundScore - 1})
-  closeLeftPlayerDialog();
-}
-function increaseRightPlayerScore() {
-  store.dispatch('group/updatePlayerSecondRoundScore',
-    {playerId: rightPlayer.value.playerId, score: rightPlayer.value.secondRoundScore + 1})
-  closeRightPlayerDialog();
-}
-function decreaseRightPlayerScore() {
-  store.dispatch('group/updatePlayerSecondRoundScore',
-    {playerId: rightPlayer.value.playerId, score: rightPlayer.value.secondRoundScore + 1})
-  closeRightPlayerDialog();
+function selectLeftPlayer(player) {
+  if (player.playerId === rightPlayer.value?.playerId) {
+    ElMessage({
+      message: '请选择不同的对手',
+      type: 'warning'
+    })
+    return
+  }
+  if (!player.secondRoundScore) {
+    player.secondRoundScore = 0
+  }
+  leftPlayer.value = player
+  closeLeftPlayerChoose()
 }
 
+function selectRightPlayer(player) {
+  if (player.playerId === leftPlayer.value?.playerId) {
+    ElMessage({
+      message: '请选择不同的对手',
+      type: 'warning'
+    })
+    return
+  }
+  if (!player.secondRoundScore) {
+    player.secondRoundScore = 0
+  }
+  rightPlayer.value = player
+  closeRightPlayerChoose()
+}
+
+// 当前选择的组别
+const currentGroup = ref(0)
+
+// 监听组别变化，重置选手
+watch(currentGroup, () => {
+  leftPlayer.value = null
+  rightPlayer.value = null
+})
+
+// 获取当前组的选手
+const currentGroupPlayers = computed(() => {
+  return playerPool.value.map(rows => rows[[currentGroup.value]])
+})
 
 </script>
 
 <style>
-.nextBt, .stopLoopBt {
+.nextBt {
   display: flex;
   justify-content: flex-end;
   padding-top: 1%;
   padding-right: 1%;
+}
+
+
+.el-select {
+  width: 140px;
 }
 
 .body {
@@ -594,7 +357,6 @@ function decreaseRightPlayerScore() {
   justify-content: center;
 }
 
-
 .lp-part1 {
   display: flex;
   justify-content: space-around;
@@ -607,7 +369,6 @@ function decreaseRightPlayerScore() {
   font-style: italic;
   font-weight: normal;
 }
-
 
 .rp-part1 {
   display: flex;
@@ -637,7 +398,8 @@ function decreaseRightPlayerScore() {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center
+  align-items: center;
+  gap: 10px;
 }
 
 .score-txt {
@@ -645,6 +407,13 @@ function decreaseRightPlayerScore() {
   font-weight: bold;
   font-style: italic;
   color: #cf0a0a;
+}
+
+.total-score {
+  font-size: 40px;
+  font-weight: bold;
+  color: #cf0a0a;
+  text-align: center;
 }
 
 .pool {
@@ -672,7 +441,6 @@ function decreaseRightPlayerScore() {
 .pp-table, .bp-table {
   height: 100%; /* 表格高度自动填充父容器 */
   width: 70%;
-
 }
 
 .bgm-pool {
@@ -696,5 +464,41 @@ function decreaseRightPlayerScore() {
   margin-bottom: 10px; /* 按钮之间的垂直间距 */
 }
 
+.player-select-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
 
+.player-select-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+}
+
+.player-name {
+  font-size: 16px;
+  color: var(--el-text-color-primary);
+}
+
+.disabled-card {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.disabled-card:hover {
+  opacity: 0.5;
+}
+
+.el-card {
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.el-card:not(.disabled-card):hover {
+  transform: translateX(10px);
+  background-color: var(--el-color-primary-light-9);
+}
 </style>

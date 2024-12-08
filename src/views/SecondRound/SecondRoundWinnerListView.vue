@@ -9,7 +9,9 @@
             :class="['cell-content', { 'highlighted-no1': highlightedCellsNo1[`${$index}-0`] }, { 'highlighted-no2': highlightedCellsNo2[`${$index}-0`] }]"
             @click="toggleHighlight($index, 0)"
           >
-            {{ row[0].name }}
+            <span v-if="highlightedCellsNo1[`${$index}-0`]" class="rank-badge rank-first">1st</span>
+            <span v-if="highlightedCellsNo2[`${$index}-0`]" class="rank-badge rank-second">2nd</span>
+            {{ row[0].name }} wins {{ row[0].secondRoundScore }}
           </div>
         </template>
       </el-table-column>
@@ -19,7 +21,9 @@
             :class="['cell-content', { 'highlighted-no1': highlightedCellsNo1[`${$index}-1`] }, { 'highlighted-no2': highlightedCellsNo2[`${$index}-1`] }]"
             @click="toggleHighlight($index, 1)"
           >
-            {{ row[1].name }}
+            <span v-if="highlightedCellsNo1[`${$index}-1`]" class="rank-badge rank-first">1st</span>
+            <span v-if="highlightedCellsNo2[`${$index}-1`]" class="rank-badge rank-second">2nd</span>
+            {{ row[1].name }} wins {{ row[1].secondRoundScore }}
           </div>
         </template>
       </el-table-column>
@@ -29,7 +33,9 @@
             :class="['cell-content', { 'highlighted-no1': highlightedCellsNo1[`${$index}-2`] }, { 'highlighted-no2': highlightedCellsNo2[`${$index}-2`] }]"
             @click="toggleHighlight($index, 2)"
           >
-            {{ row[2].name }}
+            <span v-if="highlightedCellsNo1[`${$index}-2`]" class="rank-badge rank-first">1st</span>
+            <span v-if="highlightedCellsNo2[`${$index}-2`]" class="rank-badge rank-second">2nd</span>
+            {{ row[2].name }} wins {{ row[2].secondRoundScore }}
           </div>
         </template>
       </el-table-column>
@@ -39,7 +45,9 @@
             :class="['cell-content', { 'highlighted-no1': highlightedCellsNo1[`${$index}-3`] }, { 'highlighted-no2': highlightedCellsNo2[`${$index}-3`] }]"
             @click="toggleHighlight($index, 3)"
           >
-            {{ row[3].name }}
+            <span v-if="highlightedCellsNo1[`${$index}-3`]" class="rank-badge rank-first">1st</span>
+            <span v-if="highlightedCellsNo2[`${$index}-3`]" class="rank-badge rank-second">2nd</span>
+            {{ row[3].name }} wins {{ row[3].secondRoundScore }}
           </div>
         </template>
       </el-table-column>
@@ -433,14 +441,8 @@ const headerCellStyle = () => {
 }
 </script>
 
-<style>
-.highlighted-no1{
-  background-color: #e8e8e8;
-}
+<style scoped>
 
-.highlighted-no2{
-  background-color: #888888;
-}
 
 .el-table .cell {
   padding: 0 !important;
@@ -463,7 +465,7 @@ const headerCellStyle = () => {
 .cell-content {
   cursor: pointer;
   padding: 8px;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
   height: 100%;
   width: 100%;
   display: flex;
@@ -489,5 +491,27 @@ const headerCellStyle = () => {
 .res-table {
   width: 60%;
   padding-bottom: 3%;
+}
+
+.rank-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 8px;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.rank-first {
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.rank-second {
+  background: linear-gradient(45deg, #C0C0C0, #A9A9A9);
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 </style>
