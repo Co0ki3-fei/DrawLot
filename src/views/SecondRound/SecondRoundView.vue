@@ -119,23 +119,27 @@
     </el-dialog>
     <!-- choose Left Player -->
     <el-dialog v-model="leftPlayerChooseVisible" title="选择选手" @close="closeLeftPlayerChoose">
-      <div class="button-grid">
-        <div v-for="(group, index) in playerPool" :key="index" class="button-column">
-          <div v-for="player in group" :key="player" class="dialog-button-wrapper">
-            <el-button type="text" @click="selectLeftPlayer(player)">{{ player.name }}</el-button>
-          </div>
-        </div>
-      </div>
+      <el-row>
+        <el-col v-for="(group, rowIndex) in playerPool" :key="rowIndex">
+          <el-row>
+            <el-col :span="6" v-for="(player) in group" :key="player">
+              <el-button type="text" @click="selectLeftPlayer(player)">{{ player.name }}</el-button>
+            </el-col>
+          </el-row>
+        </el-col>
+      </el-row>
     </el-dialog>
     <!-- choose Right Player -->
     <el-dialog v-model="rightPlayerChooseVisible" title="选择选手" @close="closeRightPlayerChoose">
-      <div class="button-grid">
-        <div v-for="(group, index) in playerPool" :key="index" class="button-column">
-          <div v-for="player in group" :key="player" class="dialog-button-wrapper">
-            <el-button type="text" @click="selectRightPlayer(player)">{{ player.name }}</el-button>
-          </div>
-        </div>
-      </div>
+      <el-row>
+        <el-col v-for="(group, rowIndex) in playerPool" :key="rowIndex">
+          <el-row>
+            <el-col :span="6" v-for="(player) in group" :key="player">
+              <el-button type="text" @click="selectRightPlayer(player)">{{ player.name }}</el-button>
+            </el-col>
+          </el-row>
+        </el-col>
+      </el-row>
     </el-dialog>
 
   </div>
@@ -155,6 +159,7 @@ const store = useStore();
 
 const bgms = computed(() => store.getters['group/getBgm']);
 const compGroup = computed(() => store.getters['group/compGroup']);
+console.log(compGroup)
 /*
 const compGroup = ref([
   {
@@ -433,6 +438,7 @@ const bgmChooseHandler = (bgm)=>{
 const leftPlayer = ref(null)
 const rightPlayer = ref(null)
 const selectLeftPlayer = (player) =>{
+  console.log(player)
   if (player.playerId === rightPlayer.value?.playerId){
     ElMessage({
       message: '请选择不同的对手',
@@ -445,6 +451,7 @@ const selectLeftPlayer = (player) =>{
   closeLeftPlayerChoose()
 }
 const selectRightPlayer = (player) =>{
+  console.log(player)
   if (player.playerId === leftPlayer.value?.playerId){
     ElMessage({
       message: '请选择不同的对手',
@@ -510,22 +517,23 @@ function closeRightPlayerChoose() {
 
 function increaseLeftPlayerScore() {
   store.dispatch('group/updatePlayerSecondRoundScore',
-    {playerId: leftPlayer.value.playerId, score: leftPlayer.value.score + 1})
+    {playerId: leftPlayer.value.playerId, score: leftPlayer.value.secondRoundScore + 1})
+  console.log(compGroup)
   closeLeftPlayerDialog();
 }
 function decreaseLeftPlayerScore() {
   store.dispatch('group/updatePlayerSecondRoundScore',
-    {playerId: leftPlayer.value.playerId, score: leftPlayer.value.score - 1})
+    {playerId: leftPlayer.value.playerId, score: leftPlayer.value.secondRoundScore - 1})
   closeLeftPlayerDialog();
 }
 function increaseRightPlayerScore() {
   store.dispatch('group/updatePlayerSecondRoundScore',
-    {playerId: rightPlayer.value.playerId, score: rightPlayer.value.score + 1})
+    {playerId: rightPlayer.value.playerId, score: rightPlayer.value.secondRoundScore + 1})
   closeRightPlayerDialog();
 }
 function decreaseRightPlayerScore() {
   store.dispatch('group/updatePlayerSecondRoundScore',
-    {playerId: rightPlayer.value.playerId, score: rightPlayer.value.score + 1})
+    {playerId: rightPlayer.value.playerId, score: rightPlayer.value.secondRoundScore + 1})
   closeRightPlayerDialog();
 }
 
@@ -678,6 +686,7 @@ function decreaseRightPlayerScore() {
   display: flex;
   flex-wrap: nowrap; /* 防止列换行 */
 }
+
 .button-column {
   flex: 1; /* 每列占据相等的宽度 */
   margin: 5px;

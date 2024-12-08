@@ -75,7 +75,11 @@ const orderNo2= ref({
   group4: null
 })
 
-const compGroup = computed(() => store.getters['group/compGroup'].value.sort((a, b)=> a.firstRoundGroup - b.firstRoundGroup))
+const compGroupGlobal = computed(() => store.getters['group/compGroup'])
+const compGroup = ref([])
+compGroup.value=compGroupGlobal.value.filter((player)=> {
+  return player.isFirstWinner
+}).sort((a, b)=> a.firstRoundGroup - b.firstRoundGroup)
 /*
 const compGroup = ref([
   {
@@ -401,7 +405,6 @@ if (!anyBalance.value){
     toggleHighlight(rowId, colId)
   })
 }
-console.log(highlightedCellsNo1.value)
 const nextRoundHandler = () =>{
   let no1 = Object.keys(highlightedCellsNo1.value).filter((key)=>{ return highlightedCellsNo1.value[key]}).map((key)=>{
     return key.split('-')[1]*4+key.split('-')[0]*1

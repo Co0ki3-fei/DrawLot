@@ -185,7 +185,7 @@ const testData = [
 
 const secondRoundWinners = computed(() => {
   return store.getters['group/compGroup']
-    .filter(player => player.isSecondWinner === true)
+    .filter(player => player.secondRoundOrder !== 0)
     .sort((a, b) => {
       if (a.group !== b.group) {
         return a.group - b.group;

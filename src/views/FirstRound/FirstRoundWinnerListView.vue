@@ -53,7 +53,8 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const store = useStore();
 
-const playerList = () => store.getters['group/compGroup']
+const playerList = computed(() => store.getters['group/compGroup'])
+console.log(playerList)
 
 // 添加一个计算属性来获取第一轮胜者，并按照分组顺序排序
 const fistRoundWinnerList = computed(() => {

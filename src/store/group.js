@@ -38,13 +38,13 @@ const mutations = {
 	UPDATE_PLAYER_SECOND_ROUND_SCORE(state, { playerId, score }) {
 		const player = state.compGroup.find(p => p.playerId === playerId)
 		if (player) {
-			player.thirdRoundScore = score
+			player.secondRoundScore = score
 		}
 	},
 	UPDATE_PLAYER_SECOND_ROUND_ORDER(state, { playerId, order }) {
 		const player = state.compGroup.find(p => p.playerId === playerId)
 		if (player) {
-			player.thirdRoundScore = order
+			player.secondRoundOrder = order
 		}
 	},
 	UPDATE_PLAYER_THIRD_ROUND_SCORE(state, { playerId, score }) {
@@ -58,7 +58,14 @@ const mutations = {
 		if (player) {
 			player.isThirdWinner = true
 		}
+	},
+	UPDATE_PLAYER_IS_THIRD_WINNER_TO_DEFEAT(state, playerId) {
+		const player = state.compGroup.find(p => p.playerId === playerId)
+		if (player) {
+			player.isThirdWinner = false
+		}
 	}
+
 };
 
   const actions = {

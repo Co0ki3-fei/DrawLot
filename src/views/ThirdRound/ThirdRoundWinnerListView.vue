@@ -5,7 +5,7 @@
       <el-table :data="playerPool" border :header-cell-style="headerCellStyle">
         <el-table-column align="center" label="第一组">
           <template #default="{ row, $index }">
-            <div 
+            <div
               :class="['cell-content', { 'highlighted': highlightedCells[`${$index}-0`] }]"
               @click="toggleHighlight($index, 0)"
             >
@@ -15,7 +15,7 @@
         </el-table-column>
         <el-table-column align="center" label="第二组">
           <template #default="{ row, $index }">
-            <div 
+            <div
               :class="['cell-content', { 'highlighted': highlightedCells[`${$index}-1`] }]"
               @click="toggleHighlight($index, 1)"
             >
@@ -25,7 +25,7 @@
         </el-table-column>
         <el-table-column align="center" label="第三组">
           <template #default="{ row, $index }">
-            <div 
+            <div
               :class="['cell-content', { 'highlighted': highlightedCells[`${$index}-2`] }]"
               @click="toggleHighlight($index, 2)"
             >
@@ -35,7 +35,7 @@
         </el-table-column>
         <el-table-column align="center" label="第四组">
           <template #default="{ row, $index }">
-            <div 
+            <div
               :class="['cell-content', { 'highlighted': highlightedCells[`${$index}-3`] }]"
               @click="toggleHighlight($index, 3)"
             >
@@ -50,7 +50,7 @@
     </div>
   </div>
 </template>
-  
+
 <script setup>
 /**
  * 测试使用的数据以及secondRoundWinners
@@ -154,6 +154,21 @@ import router from '@/router'
 const store = useStore()
 
 /**
+ * 获取从第二轮胜者中选出的选手，并按组和排名排序放入选手池中
+ */
+const secondRoundWinners = computed(() => {
+  return store.getters['group/compGroup']
+    .filter(player => player.secondRoundOrder !== 0)
+    .sort((a, b) => {
+      if (a.group !== b.group) {
+        return a.group - b.group
+      }
+      return a.secondRoundOrder - b.secondRoundOrder
+    })
+})
+
+
+/**
  * 用于设置高亮，通过点击对手单元格取消或进行高亮
  */
 const highlightedCells = ref({})
@@ -161,11 +176,11 @@ const highlightedCells = ref({})
 const toggleHighlight = (rowIndex, colIndex) => {
   const key = `${rowIndex}-${colIndex}`
   highlightedCells.value[key] = !highlightedCells.value[key]
-  
+
   // 获取对应的选手和对手
   const winners = secondRoundWinners.value
   let player, opponent
-  
+
   // 根据点击的位置确定选手和对手
   if (rowIndex === 0) {
     switch(colIndex) {
@@ -192,15 +207,15 @@ const toggleHighlight = (rowIndex, colIndex) => {
         player = winners[7]
         opponent = winners[0]
         break
-      case 1: 
+      case 1:
         player = winners[5]
         opponent = winners[2]
         break
-      case 2: 
+      case 2:
         player = winners[3]
         opponent = winners[4]
         break
-      case 3: 
+      case 3:
         player = winners[1]
         opponent = winners[6]
         break
@@ -212,7 +227,7 @@ const toggleHighlight = (rowIndex, colIndex) => {
       // 设置当前选手为胜者 设置对手为败者
       store.dispatch('group/updatePlayerIsThirdWinnerToWin', player.playerId)
       store.dispatch('group/updatePlayerIsThirdWinnerToDefeat', opponent.playerId)
-      
+
       // 取消对手单元格的高亮
       const opponentRowIndex = rowIndex === 0 ? 1 : 0
       const opponentKey = `${opponentRowIndex}-${colIndex}`
@@ -231,15 +246,15 @@ onMounted(() => {
       // 根据选手在表格中的位置设置高亮
       let rowIndex, colIndex
       if (index < 8) {
-        if (index === 0) { rowIndex = 0; colIndex = 0; } 
-        else if (index === 2) { rowIndex = 0; colIndex = 1; } 
+        if (index === 0) { rowIndex = 0; colIndex = 0; }
+        else if (index === 2) { rowIndex = 0; colIndex = 1; }
         else if (index === 4) { rowIndex = 0; colIndex = 2; }
         else if (index === 6) { rowIndex = 0; colIndex = 3; }
         else if (index === 7) { rowIndex = 1; colIndex = 0; }
-        else if (index === 5) { rowIndex = 1; colIndex = 1; } 
+        else if (index === 5) { rowIndex = 1; colIndex = 1; }
         else if (index === 3) { rowIndex = 1; colIndex = 2; }
-        else if (index === 1) { rowIndex = 1; colIndex = 3; } 
-        
+        else if (index === 1) { rowIndex = 1; colIndex = 3; }
+
         highlightedCells.value[`${rowIndex}-${colIndex}`] = true
       }
     }
@@ -258,35 +273,22 @@ onMounted(() => {
   }
 }
 
-/**
- * 获取从第二轮胜者中选出的选手，并按组和排名排序放入选手池中
- */
-const secondRoundWinners = computed(() => {
-  return store.getters['group/compGroup']
-    .filter(player => player.isSecondWinner === true)
-    .sort((a, b) => {
-      if (a.group !== b.group) {
-        return a.group - b.group
-      }
-      return a.secondRoundOrder - b.secondRoundOrder
-    })
-})
 const playerPool = computed(() => {
   const winners = secondRoundWinners.value
   if (winners.length !== 8) return []
-  
+
   return [
     {
-      fist_group: winners[0]?.name || '', 
+      fist_group: winners[0]?.name || '',
       second_group: winners[2]?.name || '',
       third_group: winners[4]?.name || '',
       forth_group: winners[6]?.name || ''
     },
     {
-      fist_group: winners[7]?.name || '', 
-      second_group: winners[5]?.name || '', 
+      fist_group: winners[7]?.name || '',
+      second_group: winners[5]?.name || '',
       third_group: winners[3]?.name || '',
-      forth_group: winners[1]?.name || ''  
+      forth_group: winners[1]?.name || ''
     }
   ]
 })
@@ -300,7 +302,7 @@ const nextRound = () => {
   router.push('/Finals/Finals')
 }
 </script>
-  
+
 <style>
 .second-round {
   display: flex;
