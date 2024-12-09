@@ -8,7 +8,7 @@
       <el-button @click="endGame" v-if="title === '总决赛'">结束比赛</el-button>
     </div>
     <div class="body">
-      <div class="title">{{ title }}</div>
+      <div class="title fire-text">{{ title }}</div>
       <div class="bgm" @click="showBgmSelect = true">
         <el-dropdown trigger="click" @command="handleBgmSelect">
           <span class="bgm-text">BGM: {{ currentBGM }}</span>
@@ -30,23 +30,34 @@
           <div class="select-player" v-if="!leftPlayer" @click="setLeftPlayerChoose">
             选择选手
           </div>
-          <div class="lp-part1" v-if="leftPlayer" @click="setLeftPlayerScore">
-            <el-image :src="leftPlayer.avatar" style="width: 150px; height: 200px" :fit="none"></el-image>
-            <el-text>{{ leftPlayer.name }}</el-text>
-          </div>
+          <PlayerCard
+            v-else
+            v-model:player="leftPlayer"
+            :allow-player-change="true"
+            :max-score="2"
+            :fetch-score="player => player.finalScore || 0"
+            @score-change="updateLeftPlayerScore"
+            @select-player="setLeftPlayerChoose"
+            @reset-player="resetLeftPlayer"
+          />
         </div>
         <div class="score">
           <div class="score-txt">VS</div>
-          
         </div>
         <div class="right-player">
           <div class="select-player" v-if="!rightPlayer" @click="setRightPlayerChoose">
             选择选手
           </div>
-          <div class="lp-part1" v-if="rightPlayer" @click="setRightPlayerScore">
-            <el-image :src="rightPlayer.avatar" style="width: 150px; height: 200px" :fit="none"></el-image>
-            <el-text>{{ rightPlayer.name }}</el-text>
-          </div>
+          <PlayerCard
+            v-else
+            v-model:player="rightPlayer"
+            :allow-player-change="true"
+            :max-score="2"
+            :fetch-score="player => player.finalScore || 0"
+            @score-change="updateRightPlayerScore"
+            @select-player="setRightPlayerChoose"
+            @reset-player="resetRightPlayer"
+          />
         </div>
       </div>
       <div class="pool" >
@@ -94,30 +105,48 @@
 
 
     <!-- choose Left Player -->
-    <el-dialog v-model="leftPlayerChooseVisible" title="选择选手" @close="closeLeftPlayerChoose">
-      <div class="button-grid">
-        <div v-for="player in compGroup" :key="player.name" class="button-row">
-          <el-button 
-            type="text" 
-            @click="selectLeftPlayer(player)"
-          >
-            {{ player.name }}
-          </el-button>
-        </div>
+    <el-dialog 
+      v-model="leftPlayerChooseVisible" 
+      title="选择选手" 
+      @close="closeLeftPlayerChoose"
+      width="30%"
+    >
+      <div class="player-select-list">
+        <el-card 
+          v-for="player in compGroup" 
+          :key="player.playerId"
+          :class="{ 'disabled-card': player.playerId === rightPlayer?.playerId }"
+          :shadow="player.playerId === rightPlayer?.playerId ? 'never' : 'hover'"
+          @click="player.playerId !== rightPlayer?.playerId && selectLeftPlayer(player)"
+        >
+          <div class="player-select-item">
+            <el-avatar :size="50" :src="player.avatar" />
+            <span class="player-name">{{ player.name }}</span>
+          </div>
+        </el-card>
       </div>
     </el-dialog>
 
     <!-- choose Right Player -->
-    <el-dialog v-model="rightPlayerChooseVisible" title="选择选手" @close="closeRightPlayerChoose">
-      <div class="button-grid">
-        <div v-for="player in compGroup" :key="player.name" class="button-row">
-          <el-button 
-            type="text" 
-            @click="selectRightPlayer(player)"
-          >
-            {{ player.name }}
-          </el-button>
-        </div>
+    <el-dialog 
+      v-model="rightPlayerChooseVisible" 
+      title="选择选手" 
+      @close="closeRightPlayerChoose"
+      width="30%"
+    >
+      <div class="player-select-list">
+        <el-card 
+          v-for="player in compGroup" 
+          :key="player.playerId"
+          :class="{ 'disabled-card': player.playerId === leftPlayer?.playerId }"
+          :shadow="player.playerId === leftPlayer?.playerId ? 'never' : 'hover'"
+          @click="player.playerId !== leftPlayer?.playerId && selectRightPlayer(player)"
+        >
+          <div class="player-select-item">
+            <el-avatar :size="50" :src="player.avatar" />
+            <span class="player-name">{{ player.name }}</span>
+          </div>
+        </el-card>
       </div>
     </el-dialog>
   </div>
@@ -254,7 +283,15 @@ const selectLeftPlayer = (player) => {
     }
     leftPlayer.value = player
     leftPlayerChooseVisible.value = false
-  }
+  } 
+}
+
+const resetLeftPlayer = () => {
+  leftPlayer.value = null
+}
+
+const resetRightPlayer = () => {
+  rightPlayer.value = null
 }
 
 const selectRightPlayer = (player) => {
@@ -265,7 +302,7 @@ const selectRightPlayer = (player) => {
     }
     rightPlayer.value = player
     rightPlayerChooseVisible.value = false
-  }
+  } 
 }
 
 const setLeftPlayerChoose = () => {
@@ -509,4 +546,41 @@ const endGame = () => {
   padding: 10px 20px;
 }
 
+.player-select-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+.player-select-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+}
+
+.player-name {
+  font-size: 16px;
+  color: var(--el-text-color-primary);
+}
+
+.disabled-card {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.disabled-card:hover {
+  opacity: 0.5;
+}
+
+.el-card {
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.el-card:not(.disabled-card):hover {
+  transform: translateX(10px);
+  background-color: var(--el-color-primary-light-9);
+}
 </style>
