@@ -27,3 +27,4 @@ npm run dev
 ```sh
 npm run build
 ```
+将构建出来的dist文件夹下的所有文件，复制到 `draw_lot_server\html` 中

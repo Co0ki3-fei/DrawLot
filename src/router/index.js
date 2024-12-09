@@ -10,6 +10,11 @@ const router = createRouter({
       component: StartView,
     },
     {
+      path: '/clear',
+      name: '清理数据',
+      component: () => import('../views/Clear.vue')
+    },
+    {
       path: '/PreGround',
       name: 'PreGround',
       component: () => import('../views/PreGroupView.vue'),

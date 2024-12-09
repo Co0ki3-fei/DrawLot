@@ -2,8 +2,8 @@
   <el-row :gutter="20">
 
     <el-col :span="8" class="part1">
-      <div class="body" v-for="(info,index) in infosPartUpper" :key="index"
-           :class="{'highlighted': index === highlightedLeftIndex && !info.isSelect, 'gray': info.isSelect}">
+      <div class="body" v-for="(info, index) in infosPartUpper" :key="index"
+        :class="{ 'highlighted': index === highlightedLeftIndex && !info.isSelect, 'gray': info.isSelect }">
         <div class="form">
           <el-image :src="info.avatar" :alt="info.name"></el-image>
           <el-text class="id">{{ index + 1 }}</el-text>
@@ -25,9 +25,8 @@
     </el-col>
 
     <el-col :span="8" class="part3">
-      <div class="body" v-for="(info,index) in infosPartDowner"
-           :class="{'highlighted': index === highlightedRightIndex && !info.isSelect, 'gray': info.isSelect}"
-      >
+      <div class="body" v-for="(info, index) in infosPartDowner"
+        :class="{ 'highlighted': index === highlightedRightIndex && !info.isSelect, 'gray': info.isSelect }">
         <div class="form">
           <el-image :src="info.avatar" :alt="info.name"></el-image>
           <el-text class="id">{{ index + 17 }}</el-text>
@@ -40,7 +39,6 @@
 </template>
 
 <style scoped>
-
 .part2 {
   display: flex;
   flex-direction: column;
@@ -64,10 +62,14 @@
 }
 
 .form .el-image {
-  width: 50px; /* 设置宽度 */
-  height: 50px; /* 设置高度 */
-  border-radius: 50%; /* 圆形样式 */
-  overflow: hidden; /* 防止图片溢出 */
+  width: 50px;
+  /* 设置宽度 */
+  height: 50px;
+  /* 设置高度 */
+  border-radius: 50%;
+  /* 圆形样式 */
+  overflow: hidden;
+  /* 防止图片溢出 */
 }
 
 .id {
@@ -126,21 +128,22 @@
 }
 
 .highlighted {
-  border: 3px solid rgb(33, 128, 223); /* 给高亮的元素添加不同的边框颜色 */
-  box-shadow: 0 0 10px rgba(33, 128, 223, 0.6); /* 给高亮元素加个阴影 */
+  border: 3px solid rgb(33, 128, 223);
+  /* 给高亮的元素添加不同的边框颜色 */
+  box-shadow: 0 0 10px rgba(33, 128, 223, 0.6);
+  /* 给高亮元素加个阴影 */
   background-color: azure;
 }
 
 .gray {
   background-color: gray;
 }
-
 </style>
 
 <script setup>
-import {ref, onMounted, computed, nextTick} from 'vue'
-import {useStore} from 'vuex';
-import {useRouter} from 'vue-router';
+import { ref, onMounted, computed, nextTick } from 'vue'
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 import players from '@/assets/player.json'
 
 defineOptions({
@@ -179,7 +182,7 @@ onMounted(async () => {
     if (compGroup.value && compGroup.value.length > 0) {
       console.log("load pre round from store")
       infos.value = compGroup.value.map((player) => {
-        return {...player, isSelect: player.firstRoundGroup !== -1};
+        return { ...player, isSelect: player.firstRoundGroup !== -1 };
       });
     } else {
       console.log("first open pre round, generated data")
@@ -214,18 +217,18 @@ onMounted(async () => {
 
 
     infosPartUpper.value = infos.value.filter((item) => {
-      return  item.isBetter
+      return item.isBetter
     });
     infosPartDowner.value = infos.value.filter((item) => {
-      return  !item.isBetter
+      return !item.isBetter
     });
 
     compGroupLeft.value = infos.value
-        .filter(player => player.isBetter && player.firstRoundGroup !== -1)
-        .sort((l,r)=>l.firstRoundGroup-r.firstRoundGroup)
+      .filter(player => player.isBetter && player.firstRoundGroup !== -1)
+      .sort((l, r) => l.firstRoundGroup - r.firstRoundGroup)
     compGroupRight.value = infos.value
-        .filter(player => !player.isBetter && player.firstRoundGroup !== -1)
-        .sort((l,r)=>l.firstRoundGroup-r.firstRoundGroup)
+      .filter(player => !player.isBetter && player.firstRoundGroup !== -1)
+      .sort((l, r) => l.firstRoundGroup - r.firstRoundGroup)
 
     randomRound.value = compGroupRight.value.length
 
@@ -255,8 +258,8 @@ async function nextGroupHandle() {
   console.log('轮播结束');
   isRandomScroll.value = false;
 
-  store.dispatch('group/updateGroupFirstRoundGroup', {playerId:infosPartUpper.value.at(highlightedLeftIndex.value).playerId, firstRoundGroup: randomRound.value})
-  store.dispatch('group/updateGroupFirstRoundGroup', {playerId:infosPartDowner.value.at(highlightedRightIndex.value).playerId, firstRoundGroup: randomRound.value})
+  store.dispatch('group/updateGroupFirstRoundGroup', { playerId: infosPartUpper.value.at(highlightedLeftIndex.value).playerId, firstRoundGroup: randomRound.value })
+  store.dispatch('group/updateGroupFirstRoundGroup', { playerId: infosPartDowner.value.at(highlightedRightIndex.value).playerId, firstRoundGroup: randomRound.value })
 
   // 随机选择选手
   const selectedFromPartOne = infosPartUpper.value.at(highlightedLeftIndex.value);
@@ -270,7 +273,7 @@ async function nextGroupHandle() {
   infosPartUpper.value.at(highlightedLeftIndex.value).isSelect = true;
   infosPartDowner.value.at(highlightedRightIndex.value).isSelect = true;
 
-  randomRound.value = randomRound.value+1
+  randomRound.value = randomRound.value + 1
 
 }
 

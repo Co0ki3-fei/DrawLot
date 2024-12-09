@@ -28,3 +28,6 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+draw_lot_server/logs
+draw_lot_server/temp
