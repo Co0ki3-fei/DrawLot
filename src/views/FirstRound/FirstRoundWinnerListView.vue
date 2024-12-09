@@ -1,6 +1,6 @@
 <template>
 <div class="winner-list-view">
-  <div class="title">
+  <div class="title fire-text">
     三十二强赛胜者
   </div>
   <div class="winner-list">

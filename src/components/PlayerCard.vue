@@ -145,6 +145,8 @@ const handleSkillChange = (skill) => {
               linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96c93d) border-box;
   padding: 15px;
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  height: 300px;
+  width: 400px;
 }
 
 .player-info {
@@ -183,5 +185,12 @@ const handleSkillChange = (skill) => {
   font-weight: bold;
   font-style: italic;
   margin-right: 8px;
+}
+
+.select-player {
+  text-align: center;
+  font-size: 24px;
+  color: var(--text-color);
+  cursor: pointer;
 }
 </style> 

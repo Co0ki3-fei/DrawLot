@@ -4,7 +4,7 @@
       <el-button @click="nextGroup">下一组</el-button>
     </div>
     <div class="body">
-      <div class="title">八强对决</div>
+      <div class="title fire-text">八强对决</div>
       <div class="bgm" @click="showBgmSelect = true">
         <el-dropdown trigger="click" @command="handleBgmSelect">
           <span class="bgm-text">BGM: {{ currentBgm }}</span>
@@ -22,60 +22,87 @@
         </el-dropdown>
       </div>
       <div class="player-form">
-        <div class="left-player">
-          <div class="lp-part1">
-            <el-image :src="leftPlayer.avatar" style="width: 150px; height: 200px" @click="setLeftPlayerScore"></el-image>
-            <el-text @click="setLeftPlayerScore">{{ leftPlayer.name }}</el-text>
-          </div>
-        </div>
+        <PlayerCard
+          v-model:player="leftPlayer"
+          :allow-player-change="false"
+          :max-score="2"
+          :fetch-score="player => player.thirdRoundScore || 0"
+          @score-change="updateLeftPlayerScore"
+        />
+
         <div class="score">
           <div class="score-txt">VS</div>
-          <div class="score-res">{{ leftPlayer.thirdRoundScore }}:{{ rightPlayer.thirdRoundScore }}</div>
+          <div class="score-res">{{ leftPlayer.thirdRoundScore || 0 }}:{{ rightPlayer.thirdRoundScore || 0 }}</div>
         </div>
-        <div class="right-player">
 
-          <div class="lp-part1">
-            <el-image :src="rightPlayer.avatar" style="width: 150px; height: 200px"  @click="setRightPlayerScore"></el-image>
-            <el-text @click="setRightPlayerScore">{{ rightPlayer.name }}</el-text>
-          </div>
-        </div>
+        <PlayerCard
+          v-model:player="rightPlayer"
+          :allow-player-change="false" 
+          :max-score="2"
+          :fetch-score="player => player.thirdRoundScore || 0"
+          @score-change="updateRightPlayerScore"
+        />
       </div>
       <div class="pool" >
         <div class="player-pool">
           <div class="pp-title">选手池</div>
           <div class="pp-table">
-            <el-table :data="playerPool" border :show-header="false">
-              <el-table-column align="center" prop="fist_group" label="第一组" />
-              <el-table-column align="center" prop="second_group" label="第二组" />
-              <el-table-column align="center" prop="third_group" label="第三组" />
-              <el-table-column align="center" prop="forth_group" label="第四组" />
-            </el-table>
+            <CustomTable 
+              :data="playerPool" 
+              :columns="playerColumns"
+              :show-header="false"
+            >
+              <template #fist_group="{ row }">
+                <div class="pool-cell">
+                  <span>{{ row.fist_group }}</span>
+                </div>
+              </template>
+              <template #second_group="{ row }">
+                <div class="pool-cell">
+                  <span>{{ row.second_group }}</span>
+                </div>
+              </template>
+              <template #third_group="{ row }">
+                <div class="pool-cell">
+                  <span>{{ row.third_group }}</span>
+                </div>
+              </template>
+              <template #forth_group="{ row }">
+                <div class="pool-cell">
+                  <span>{{ row.forth_group }}</span>
+                </div>
+              </template>
+            </CustomTable>
           </div>
         </div>
         <div class="bgm-pool">
           <div class="bp-title">BGM池</div>
           <div class="bp-table">
-            <el-table :data="formattedBgmPool" border :show-header="false">
-              <el-table-column prop="col1" align="center"></el-table-column>
-              <el-table-column prop="col2" align="center"></el-table-column>
-              <el-table-column prop="col3" align="center"></el-table-column>
-            </el-table>
+            <CustomTable 
+              :data="formattedBgmPool" 
+              :columns="bgmColumns"
+              :show-header="false"
+            >
+              <template #col1="{ row }">
+                <div class="pool-cell">
+                  <span>{{ row.col1 }}</span>
+                </div>
+              </template>
+              <template #col2="{ row }">
+                <div class="pool-cell">
+                  <span>{{ row.col2 }}</span>
+                </div>
+              </template>
+              <template #col3="{ row }">
+                <div class="pool-cell">
+                  <span>{{ row.col3 }}</span>
+                </div>
+              </template>
+            </CustomTable>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- 左选手对话框 -->
-    <el-dialog v-model="leftPlayerDialogVisible" title="修改胜场" @close="closeLeftPlayerDialog">
-      <el-button @click="increaseLeftPlayerScore">增加胜场</el-button>
-      <el-button @click="decreaseLeftPlayerScore">减少胜场</el-button>
-    </el-dialog>
-
-    <!-- 右选手对话框 -->
-    <el-dialog v-model="rightPlayerDialogVisible" title="修改胜场" @close="closeRightPlayerDialog">
-      <el-button @click="increaseRightPlayerScore">增加胜场</el-button>
-      <el-button @click="decreaseRightPlayerScore">减少胜场</el-button>
-    </el-dialog>
   </div>
 </template>
 
@@ -85,6 +112,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import PlayerCard from '@/components/PlayerCard.vue'
+import CustomTable from '@/components/CustomTable.vue'
 
 const router = useRouter()
 const store = useStore()
@@ -223,6 +252,8 @@ onMounted(() => {
     rightPlayer.value = winners[7] // 第四组第二名
     isSelect.value = true
   }
+  console.log("clearPlayerIsThirdWinner")
+  store.dispatch('group/clearPlayerIsThirdWinner')
 })
 
 // 更新选手分数和胜利状态
@@ -237,64 +268,13 @@ const updatePlayerScore = (playerId, score) => {
   }
 }
 
-
-// 对话框控制
-const leftPlayerDialogVisible = ref(false)
-const rightPlayerDialogVisible = ref(false)
-
-// 打开对话框
-function setLeftPlayerScore() {
-  leftPlayerDialogVisible.value = true
+// 更新选手分数
+const updateLeftPlayerScore = (playerId, score) => {
+  updatePlayerScore(playerId, score)
 }
 
-function setRightPlayerScore() {
-  rightPlayerDialogVisible.value = true
-}
-
-// 关闭对话框
-function closeLeftPlayerDialog() {
-  leftPlayerDialogVisible.value = false
-}
-
-function closeRightPlayerDialog() {
-  rightPlayerDialogVisible.value = false
-}
-
-// 增加/减少分数
-function increaseLeftPlayerScore() {
-  if (!leftPlayer.value.thirdRoundScore) {
-    leftPlayer.value.thirdRoundScore = 0
-  }
-  leftPlayer.value.thirdRoundScore += 1
-  updatePlayerScore(leftPlayer.value.playerId, leftPlayer.value.thirdRoundScore)
-  closeLeftPlayerDialog()
-}
-
-function decreaseLeftPlayerScore() {
-  if (!leftPlayer.value.thirdRoundScore) {
-    leftPlayer.value.thirdRoundScore = 0
-  }
-  leftPlayer.value.thirdRoundScore = Math.max(0, leftPlayer.value.thirdRoundScore - 1)
-  updatePlayerScore(leftPlayer.value.playerId, leftPlayer.value.thirdRoundScore)
-  closeLeftPlayerDialog()
-}
-
-function increaseRightPlayerScore() {
-  if (!rightPlayer.value.thirdRoundScore) {
-    rightPlayer.value.thirdRoundScore = 0
-  }
-  rightPlayer.value.thirdRoundScore += 1
-  updatePlayerScore(rightPlayer.value.playerId, rightPlayer.value.thirdRoundScore)
-  closeRightPlayerDialog()
-}
-
-function decreaseRightPlayerScore() {
-  if (!rightPlayer.value.thirdRoundScore) {
-    rightPlayer.value.thirdRoundScore = 0
-  }
-  rightPlayer.value.thirdRoundScore = Math.max(0, rightPlayer.value.thirdRoundScore - 1)
-  updatePlayerScore(rightPlayer.value.playerId, rightPlayer.value.thirdRoundScore)
-  closeRightPlayerDialog()
+const updateRightPlayerScore = (playerId, score) => {
+  updatePlayerScore(playerId, score)
 }
 
 // 点击下一组按钮的处理函数
@@ -304,6 +284,9 @@ const nextGroup = () => {
   if (!hasWinner) {
     return
   }
+
+  updatePlayerScore(leftPlayer.value.playerId, leftPlayer.value.thirdRoundScore)
+  updatePlayerScore(rightPlayer.value.playerId, rightPlayer.value.thirdRoundScore)
 
   // 如果是最后一组（第4组），可以跳转到下一个页面
   if (currentGroupIndex.value >= 3) {
@@ -366,6 +349,20 @@ const formattedBgmPool = computed(() => {
   }
   return rows
 })
+
+// 添加列定义
+const playerColumns = [
+  { prop: 'fist_group', label: '第一组' },
+  { prop: 'second_group', label: '第二组' },
+  { prop: 'third_group', label: '第三组' },
+  { prop: 'forth_group', label: '第四组' }
+]
+
+const bgmColumns = [
+  { prop: 'col1', label: '第一列' },
+  { prop: 'col2', label: '第二列' },
+  { prop: 'col3', label: '第三列' }
+]
 
 </script>
 

@@ -1,49 +1,49 @@
 <template>
   <div class="second-round">
-    <div class="title">八强赛胜者</div>
+    <div class="title fire-text">八强赛胜者</div>
     <div class="res-table">
-      <el-table :data="playerPool" border :header-cell-style="headerCellStyle">
-        <el-table-column align="center" label="第一组">
-          <template #default="{ row, $index }">
-            <div
-              :class="['cell-content', { 'highlighted': highlightedCells[`${$index}-0`] }]"
-              @click="toggleHighlight($index, 0)"
-            >
-              {{ row.fist_group }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="第二组">
-          <template #default="{ row, $index }">
-            <div
-              :class="['cell-content', { 'highlighted': highlightedCells[`${$index}-1`] }]"
-              @click="toggleHighlight($index, 1)"
-            >
-              {{ row.second_group }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="第三组">
-          <template #default="{ row, $index }">
-            <div
-              :class="['cell-content', { 'highlighted': highlightedCells[`${$index}-2`] }]"
-              @click="toggleHighlight($index, 2)"
-            >
-              {{ row.third_group }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="第四组">
-          <template #default="{ row, $index }">
-            <div
-              :class="['cell-content', { 'highlighted': highlightedCells[`${$index}-3`] }]"
-              @click="toggleHighlight($index, 3)"
-            >
-              {{ row.forth_group }}
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
+      <CustomTable 
+        :data="playerPool" 
+        :columns="columns"
+        :show-header="true"
+      >
+        <template #fist_group="{ row, $index }">
+          <div
+            :class="['cell-content', { 'highlighted': highlightedCells[`${$index}-0`] }]"
+            @click="toggleHighlight($index, 0)"
+          >
+            <span v-if="highlightedCells[`${$index}-0`]" class="rank-badge rank-winner">Winner</span>
+            {{ row.fist_group }}
+          </div>
+        </template>
+        <template #second_group="{ row, $index }">
+          <div
+            :class="['cell-content', { 'highlighted': highlightedCells[`${$index}-1`] }]"
+            @click="toggleHighlight($index, 1)"
+          >
+            <span v-if="highlightedCells[`${$index}-1`]" class="rank-badge rank-winner">Winner</span>
+            {{ row.second_group }}
+          </div>
+        </template>
+        <template #third_group="{ row, $index }">
+          <div
+            :class="['cell-content', { 'highlighted': highlightedCells[`${$index}-2`] }]"
+            @click="toggleHighlight($index, 2)"
+          >
+            <span v-if="highlightedCells[`${$index}-2`]" class="rank-badge rank-winner">Winner</span>
+            {{ row.third_group }}
+          </div>
+        </template>
+        <template #forth_group="{ row, $index }">
+          <div
+            :class="['cell-content', { 'highlighted': highlightedCells[`${$index}-3`] }]"
+            @click="toggleHighlight($index, 3)"
+          >
+            <span v-if="highlightedCells[`${$index}-3`]" class="rank-badge rank-winner">Winner</span>
+            {{ row.forth_group }}
+          </div>
+        </template>
+      </CustomTable>
     </div>
     <div class="next-button">
       <el-button @click="nextRound">进入下一轮</el-button>
@@ -52,104 +52,10 @@
 </template>
 
 <script setup>
-/**
- * 测试使用的数据以及secondRoundWinners
- */
-const testData = [
- {
-    playerId: 1,
-    name: "选手A1",
-    avatar: "https://example.com/avatar1.jpg",
-    group: 0,  // 第一组
-    secondRoundOrder: 1,  // 组内第二名
-    isSecondWinner: true,
-    thirdRoundScore: 0,
-    isThirdWinner: true
-  },
-  {
-    playerId: 2,
-    name: "选手A2",
-    avatar: "https://example.com/avatar2.jpg",
-    group: 0,  // 第一组
-    secondRoundOrder: 2,  // 组内第二名
-    isSecondWinner: true,
-    thirdRoundScore: 0,
-    isThirdWinner: true
-  },
-  {
-    playerId: 3,
-    name: "选手B1",
-    avatar: "https://example.com/avatar3.jpg",
-    group: 1,  // 第二组
-    secondRoundOrder: 1,
-    isSecondWinner: true,
-    thirdRoundScore: 0,
-    isThirdWinner: true
-  },
-  {
-    playerId: 4,
-    name: "选手B2",
-    avatar: "https://example.com/avatar4.jpg",
-    group: 1,
-    secondRoundOrder: 2,
-    isSecondWinner: true,
-    thirdRoundScore: 0,
-    isThirdWinner: true
-  },
-  {
-    playerId: 5,
-    name: "选手C1",
-    avatar: "https://example.com/avatar5.jpg",
-    group: 2,
-    secondRoundOrder: 1,
-    isSecondWinner: true,
-    thirdRoundScore: 0,
-    isThirdWinner: false
-  },
-  {
-    playerId: 6,
-    name: "选手C2",
-    avatar: "https://example.com/avatar6.jpg",
-    group: 2,
-    secondRoundOrder: 2,
-    isSecondWinner: true,
-    thirdRoundScore: 0,
-    isThirdWinner: false
-  },
-  {
-    playerId: 7,
-    name: "选手D1",
-    avatar: "https://example.com/avatar7.jpg",
-    group: 3,
-    secondRoundOrder: 1,
-    isSecondWinner: true,
-    thirdRoundScore: 0,
-    isThirdWinner: false
-  },
-  {
-    playerId: 8,
-    name: "选手D2",
-    avatar: "https://example.com/avatar8.jpg",
-    group: 3,
-    secondRoundOrder: 2,
-    isSecondWinner: true,
-    thirdRoundScore: 0,
-    isThirdWinner: false
-  }
-];
-// const secondRoundWinners = computed(() => {
-//   return testData
-//     .sort((a, b) => {
-//       if (a.group !== b.group) {
-//         return a.group - b.group;
-//     }
-//     return a.secondRoundOrder - b.secondRoundOrder;
-//   });
-// });
-
 import { computed, ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import router from '@/router'
+import CustomTable from '@/components/CustomTable.vue'
 
 const store = useStore()
 
@@ -257,7 +163,7 @@ onMounted(() => {
 
         highlightedCells.value[`${rowIndex}-${colIndex}`] = true
       }
-    }
+    } 
   })
 })
 
@@ -293,7 +199,12 @@ const playerPool = computed(() => {
   ]
 })
 
-
+const columns = [
+  { prop: 'fist_group', label: '第一组' },
+  { prop: 'second_group', label: '第二组' },
+  { prop: 'third_group', label: '第三组' },
+  { prop: 'forth_group', label: '第四组' }
+]
 
 /**
  * 进入总决赛阶段
@@ -303,7 +214,7 @@ const nextRound = () => {
 }
 </script>
 
-<style>
+<style scoped>
 .second-round {
   display: flex;
   flex-direction: column;
@@ -327,7 +238,7 @@ const nextRound = () => {
 .cell-content {
   cursor: pointer;
   padding: 8px;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
   height: 100%;
   width: 100%;
   display: flex;
@@ -336,7 +247,9 @@ const nextRound = () => {
 }
 
 .highlighted {
-  background-color: #6d6a6a;
+  background-color: rgba(109, 106, 106, 0.3);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
 }
 
 .el-table .cell {
@@ -355,5 +268,20 @@ const nextRound = () => {
 
 .el-table__row td {
   height: 50px;  /* 设置一个固定高度 */
+}
+
+.rank-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 8px;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.rank-winner {
+  background: linear-gradient(45deg, #FFD700, #FF4500);
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 </style>

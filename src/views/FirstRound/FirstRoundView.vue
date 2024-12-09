@@ -49,23 +49,27 @@
       <div class="skill" >
         <div class="skill-title">技池</div>
         <div class="skill-pool">
-          <el-table :data="skillPool" border style="width: 100%;" :show-header="false">
-            <el-table-column label="Column 1" align="center">
-              <template #default="{ row }">
+          <CustomTable 
+            :data="skillPool" 
+            :columns="skillColumns"
+            :show-header="false"
+          >
+            <template #column1="{ row }">
+              <div class="pool-cell">
                 <span>{{ row[0] }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="Column 2" align="center">
-              <template #default="{ row }">
+              </div>
+            </template>
+            <template #column2="{ row }">
+              <div class="pool-cell">
                 <span>{{ row[1] }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="Column 3"  align="center">
-              <template #default="{ row }">
+              </div>
+            </template>
+            <template #column3="{ row }">
+              <div class="pool-cell">
                 <span>{{ row[2] }}</span>
-              </template>
-            </el-table-column>
-          </el-table>
+              </div>
+            </template>
+          </CustomTable>
         </div>
       </div>
     </div>
@@ -80,6 +84,7 @@ import { useRouter } from 'vue-router';
 import {chunkArray} from "@/utils/utils.js";
 import { ElMessage } from 'element-plus'
 import PlayerCard from '@/components/PlayerCard.vue';
+import CustomTable from '@/components/CustomTable.vue'
 
 
 /**
@@ -212,7 +217,7 @@ const completedGroups = computed(() => {
     const leftPlayer = compGroupLeft.value[i];
     const rightPlayer = compGroupRight.value[i];
     
-    // 检查这一组是否有胜者（即比赛是否完成）
+    // 检查这一组是否有胜者（即比赛���否完成）
     if (leftPlayer && rightPlayer && 
         (leftPlayer.isFirstWinner || rightPlayer.isFirstWinner)) {
       groups.push(i);
@@ -220,6 +225,13 @@ const completedGroups = computed(() => {
   }
   return groups;
 });
+
+// 添加列定义
+const skillColumns = [
+  { prop: 'column1', label: '第一列' },
+  { prop: 'column2', label: '第二列' },
+  { prop: 'column3', label: '第三列' }
+]
 
 </script>
 

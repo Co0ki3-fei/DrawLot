@@ -1,57 +1,64 @@
 <template>
 <div class="second-round">
-  <div class="title">小组循环赛胜者</div>
+  <div class="title fire-text">小组循环赛胜者</div>
   <div class="res-table">
-    <el-table :data="playerPool" border :header-cell-style="headerCellStyle">
-      <el-table-column align="center" prop="fist_group" label="第一组">
-        <template #default="{ row, $index }">
-          <div
-            :class="['cell-content', { 'highlighted-no1': highlightedCellsNo1[`${$index}-0`] }, { 'highlighted-no2': highlightedCellsNo2[`${$index}-0`] }]"
-            @click="toggleHighlight($index, 0)"
-          >
+    <CustomTable 
+      :data="playerPool" 
+      :columns="columns"
+      :show-header="true"
+    >
+      <template #fist_group="{ row, $index }">
+        <div
+          :class="['cell-content', { 'highlighted-no1': highlightedCellsNo1[`${$index}-0`] }, { 'highlighted-no2': highlightedCellsNo2[`${$index}-0`] }]"
+          @click="toggleHighlight($index, 0)"
+        >
+          <div class="badge-container">
             <span v-if="highlightedCellsNo1[`${$index}-0`]" class="rank-badge rank-first">1st</span>
             <span v-if="highlightedCellsNo2[`${$index}-0`]" class="rank-badge rank-second">2nd</span>
-            {{ row[0].name }} wins {{ row[0].secondRoundScore }}
           </div>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" prop="second_group" label="第二组">
-        <template #default="{ row, $index }">
-          <div
-            :class="['cell-content', { 'highlighted-no1': highlightedCellsNo1[`${$index}-1`] }, { 'highlighted-no2': highlightedCellsNo2[`${$index}-1`] }]"
-            @click="toggleHighlight($index, 1)"
-          >
+          <span class="player-info">{{ row[0].name }} wins {{ row[0].secondRoundScore }}</span>
+        </div>
+      </template>
+
+      <template #second_group="{ row, $index }">
+        <div
+          :class="['cell-content', { 'highlighted-no1': highlightedCellsNo1[`${$index}-1`] }, { 'highlighted-no2': highlightedCellsNo2[`${$index}-1`] }]"
+          @click="toggleHighlight($index, 1)"
+        >
+          <div class="badge-container">
             <span v-if="highlightedCellsNo1[`${$index}-1`]" class="rank-badge rank-first">1st</span>
             <span v-if="highlightedCellsNo2[`${$index}-1`]" class="rank-badge rank-second">2nd</span>
-            {{ row[1].name }} wins {{ row[1].secondRoundScore }}
           </div>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" prop="third_group" label="第三组">
-        <template #default="{ row, $index }">
-          <div
-            :class="['cell-content', { 'highlighted-no1': highlightedCellsNo1[`${$index}-2`] }, { 'highlighted-no2': highlightedCellsNo2[`${$index}-2`] }]"
-            @click="toggleHighlight($index, 2)"
-          >
+          <span class="player-info">{{ row[1].name }} wins {{ row[1].secondRoundScore }}</span>
+        </div>
+      </template>
+
+      <template #third_group="{ row, $index }">
+        <div
+          :class="['cell-content', { 'highlighted-no1': highlightedCellsNo1[`${$index}-2`] }, { 'highlighted-no2': highlightedCellsNo2[`${$index}-2`] }]"
+          @click="toggleHighlight($index, 2)"
+        >
+          <div class="badge-container">
             <span v-if="highlightedCellsNo1[`${$index}-2`]" class="rank-badge rank-first">1st</span>
             <span v-if="highlightedCellsNo2[`${$index}-2`]" class="rank-badge rank-second">2nd</span>
-            {{ row[2].name }} wins {{ row[2].secondRoundScore }}
           </div>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" prop="forth_group" label="第四组">
-        <template #default="{ row, $index }">
-          <div
-            :class="['cell-content', { 'highlighted-no1': highlightedCellsNo1[`${$index}-3`] }, { 'highlighted-no2': highlightedCellsNo2[`${$index}-3`] }]"
-            @click="toggleHighlight($index, 3)"
-          >
+          <span class="player-info">{{ row[2].name }} wins {{ row[2].secondRoundScore }}</span>
+        </div>
+      </template>
+
+      <template #forth_group="{ row, $index }">
+        <div
+          :class="['cell-content', { 'highlighted-no1': highlightedCellsNo1[`${$index}-3`] }, { 'highlighted-no2': highlightedCellsNo2[`${$index}-3`] }]"
+          @click="toggleHighlight($index, 3)"
+        >
+          <div class="badge-container">
             <span v-if="highlightedCellsNo1[`${$index}-3`]" class="rank-badge rank-first">1st</span>
             <span v-if="highlightedCellsNo2[`${$index}-3`]" class="rank-badge rank-second">2nd</span>
-            {{ row[3].name }} wins {{ row[3].secondRoundScore }}
           </div>
-        </template>
-      </el-table-column>
-    </el-table>
+          <span class="player-info">{{ row[3].name }} wins {{ row[3].secondRoundScore }}</span>
+        </div>
+      </template>
+    </CustomTable>
   </div>
   <div class="next-button">
     <el-button @click="nextRoundHandler">进入下一轮</el-button>
@@ -59,12 +66,18 @@
 </div>
 </template>
 
-
 <script setup>
+import { useRouter } from "vue-router"
+import { useStore } from "vuex"
+import { computed, ref } from "vue"
+import CustomTable from '@/components/CustomTable.vue'
 
-import {useRouter} from "vue-router";
-import {useStore} from "vuex";
-import {computed, ref} from "vue";
+const columns = [
+  { prop: 'fist_group', label: '第一组' },
+  { prop: 'second_group', label: '第二组' },
+  { prop: 'third_group', label: '第三组' },
+  { prop: 'forth_group', label: '第四组' }
+]
 
 const router = useRouter();
 const store = useStore();
@@ -421,6 +434,7 @@ const nextRoundHandler = () =>{
     return key.split('-')[1]*4+key.split('-')[0]*1
   })
   if (no1.length === 4 && no2.length === 4){
+    store.dispatch('group/clearPlayerSecondRoundOrder')
     no1.forEach((index)=>{
       store.dispatch('group/updatePlayerSecondRoundOrder',{playerId: compGroup.value[index].playerId, order: 1})
     })
@@ -428,6 +442,8 @@ const nextRoundHandler = () =>{
       store.dispatch('group/updatePlayerSecondRoundOrder',{playerId: compGroup.value[index].playerId, order: 2})
     })
     router.push('/ThirdRound/ThirdRoundView')
+  } else {
+    ElMessage.error('请选择胜者')
   }
 }
 
@@ -442,37 +458,6 @@ const headerCellStyle = () => {
 </script>
 
 <style scoped>
-
-
-.el-table .cell {
-  padding: 0 !important;
-  height: 100%;
-}
-
-/* 添加这些新样式 */
-.el-table__cell {
-  padding: 0 !important;
-}
-
-.el-table .cell {
-  height: 100%;
-}
-
-.el-table__row td {
-  height: 50px;  /* 设置一个固定高度 */
-}
-
-.cell-content {
-  cursor: pointer;
-  padding: 8px;
-  transition: all 0.3s ease;
-  height: 100%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .second-round {
   display: flex;
   flex-direction: column;
@@ -486,19 +471,48 @@ const headerCellStyle = () => {
   text-decoration: underline;
   font-style: italic;
   padding-bottom: 1%;
+  color: #fff;
 }
 
 .res-table {
-  width: 60%;
+  width: 80%;
   padding-bottom: 3%;
 }
 
+.cell-content {
+  cursor: pointer;
+  padding: 8px;
+  transition: all 0.3s ease;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.badge-container {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.player-info {
+  position: relative;
+  z-index: 0;
+}
+
 .rank-badge {
+  position: absolute;
   padding: 2px 6px;
   border-radius: 4px;
-  margin-right: 8px;
   font-weight: bold;
-  font-size: 0.9em;
+  font-size: 0.8em;
+  white-space: nowrap;
+  left: 4px;
 }
 
 .rank-first {
@@ -506,6 +520,7 @@ const headerCellStyle = () => {
   color: #fff;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  top: -12px;
 }
 
 .rank-second {
@@ -513,5 +528,25 @@ const headerCellStyle = () => {
   color: #fff;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  top: -12px;
+}
+
+.next-button {
+  margin-top: 20px;
+}
+
+.next-button .el-button {
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.next-button .el-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
 }
 </style>

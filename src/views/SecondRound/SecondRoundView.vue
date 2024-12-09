@@ -64,50 +64,59 @@
         <div class="player-pool">
           <div class="pp-title">选手池</div>
           <div class="pp-table">
-            <el-table :data="playerPool" border :header-cell-style="headerCellStyle">
-              <el-table-column align="center" prop="fist_group" label="第一组">
-                <template #default="{ row }">
-                  <span>{{ row[0].name }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column align="center" prop="second_group" label="第二组">
-                <template #default="{ row }">
-                  <span>{{ row[1].name }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column align="center" prop="third_group" label="第三组">
-                <template #default="{ row }">
-                  <span>{{ row[2].name }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column align="center" prop="forth_group" label="第四组">
-                <template #default="{ row }">
-                  <span>{{ row[3].name }}</span>
-                </template>
-              </el-table-column>
-            </el-table>
+            <CustomTable 
+              :data="playerPool" 
+              :columns="playerColumns"
+              :show-header="true"
+            >
+              <template #fist_group="{ row }">
+                <div class="pool-cell">
+                  <span class="player-name">{{ row[0].name }}</span>
+                </div>
+              </template>
+              <template #second_group="{ row }">
+                <div class="pool-cell">
+                  <span class="player-name">{{ row[1].name }}</span>
+                </div>
+              </template>
+              <template #third_group="{ row }">
+                <div class="pool-cell">
+                  <span class="player-name">{{ row[2].name }}</span>
+                </div>
+              </template>
+              <template #forth_group="{ row }">
+                <div class="pool-cell">
+                  <span class="player-name">{{ row[3].name }}</span>
+                </div>
+              </template>
+            </CustomTable>
           </div>
         </div>
+
         <div class="bgm-pool">
           <div class="bp-title">BGM池</div>
           <div class="bp-table">
-            <el-table :data="bgmPool" border :show-header="false">
-              <el-table-column prop="" align="center">
-                <template #default="{ row }">
-                  <span>{{ row[0] }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column align="center">
-                <template #default="{ row }">
-                  <span>{{ row[1] }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column align="center">
-                <template #default="{ row }">
-                  <span>{{ row[2] }}</span>
-                </template>
-              </el-table-column>
-            </el-table>
+            <CustomTable 
+              :data="bgmPool" 
+              :columns="bgmColumns"
+              :show-header="false"
+            >
+              <template #column1="{ row }">
+                <div class="pool-cell">
+                  <span class="bgm-name">{{ row[0] }}</span>
+                </div>
+              </template>
+              <template #column2="{ row }">
+                <div class="pool-cell">
+                  <span class="bgm-name">{{ row[1] }}</span>
+                </div>
+              </template>
+              <template #column3="{ row }">
+                <div class="pool-cell">
+                  <span class="bgm-name">{{ row[2] }}</span>
+                </div>
+              </template>
+            </CustomTable>
           </div>
         </div>
       </div>
@@ -166,6 +175,7 @@ import { computed, ref, watch } from "vue";
 import { chunkArray } from "@/utils/utils.js";
 import { ElMessage } from "element-plus";
 import PlayerCard from '@/components/PlayerCard.vue';
+import CustomTable from '@/components/CustomTable.vue'
 
 const router = useRouter();
 const store = useStore();
@@ -296,9 +306,23 @@ const currentGroupPlayers = computed(() => {
   return playerPool.value.map(rows => rows[[currentGroup.value]])
 })
 
+// 添加列定义
+const playerColumns = [
+  { prop: 'fist_group', label: '第一组' },
+  { prop: 'second_group', label: '第二组' },
+  { prop: 'third_group', label: '第三组' },
+  { prop: 'forth_group', label: '第四组' }
+]
+
+const bgmColumns = [
+  { prop: 'column1', label: '' },
+  { prop: 'column2', label: '' },
+  { prop: 'column3', label: '' }
+]
+
 </script>
 
-<style>
+<style scoped>
 .nextBt {
   display: flex;
   justify-content: flex-end;
@@ -422,9 +446,10 @@ const currentGroupPlayers = computed(() => {
   justify-content: space-around;
   width: 100%;
   padding-top: 5%;
+  gap: 20px;
 }
 
-.player-pool {
+.player-pool, .bgm-pool {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -432,36 +457,34 @@ const currentGroupPlayers = computed(() => {
 }
 
 .pp-title, .bp-title {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: bold;
   font-style: italic;
   text-decoration: underline;
+  color: var(--text-color);
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
-
-.pp-table, .bp-table {
-  height: 100%; /* 表格高度自动填充父容器 */
-  width: 70%;
-}
-
-.bgm-pool {
-  width: 100%;
+/* 
+.pool-cell {
+  padding: 12px;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+} */
+
+/* 为BGM池添加特殊样式 */
+.bgm-name {
+  font-style: italic;
+  font-weight: 500;
 }
 
-.button-grid {
-  display: flex;
-  flex-wrap: nowrap; /* 防止列换行 */
-}
-
-.button-column {
-  flex: 1; /* 每列占据相等的宽度 */
-  margin: 5px;
-}
-.button-wrapper {
-  text-align: center; /* 使按钮居中 */
-  margin-bottom: 10px; /* 按钮之间的垂直间距 */
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .pool {
+    flex-direction: column;
+  }
 }
 
 .player-select-list {

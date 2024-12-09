@@ -76,6 +76,16 @@ const mutations = {
 		if (player) {
 			player.firstRoundSkill = skill;
 		}
+	},
+	CLEAR_PLAYER_SECOND_ROUND_ORDER(state){
+		state.compGroup.forEach(player => {
+			player.secondRoundOrder = 0;
+		});
+	},
+	CLEAR_PLAYER_IS_THIRD_WINNER(state){
+		state.compGroup.forEach(player => {
+			player.isThirdWinner = false;
+		});
 	}
 };
 
@@ -104,6 +114,9 @@ const mutations = {
 	updatePlayerSecondRoundOrder({ commit }, payload) {
 		commit('UPDATE_PLAYER_SECOND_ROUND_ORDER', payload)
 	},
+	clearPlayerSecondRoundOrder({ commit }){
+		commit('CLEAR_PLAYER_SECOND_ROUND_ORDER')
+	},	
     updatePlayerThirdRoundScore({ commit }, payload) {
       commit('UPDATE_PLAYER_THIRD_ROUND_SCORE', payload)
     },
@@ -118,6 +131,9 @@ const mutations = {
 	},
 	updatePlayerFirstRoundSkill({ commit }, payload) {
 		commit('UPDATE_PLAYER_FIRST_ROUND_SKILL', payload);
+	},
+	clearPlayerIsThirdWinner({ commit }){
+		commit('CLEAR_PLAYER_IS_THIRD_WINNER')
 	}
   };
 
