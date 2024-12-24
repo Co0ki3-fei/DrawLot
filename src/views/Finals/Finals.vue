@@ -26,12 +26,7 @@
         </el-dropdown>
       </div>
       <div class="player-form">
-        <div class="left-player">
-          <div class="select-player" v-if="!leftPlayer" @click="setLeftPlayerChoose">
-            选择选手
-          </div>
           <PlayerCard
-            v-else
             v-model:player="leftPlayer"
             :allow-player-change="true"
             :max-score="2"
@@ -40,16 +35,11 @@
             @select-player="setLeftPlayerChoose"
             @reset-player="resetLeftPlayer"
           />
-        </div>
         <div class="score">
           <div class="score-txt">VS</div>
         </div>
-        <div class="right-player">
-          <div class="select-player" v-if="!rightPlayer" @click="setRightPlayerChoose">
-            选择选手
-          </div>
+        
           <PlayerCard
-            v-else
             v-model:player="rightPlayer"
             :allow-player-change="true"
             :max-score="2"
@@ -58,7 +48,6 @@
             @select-player="setRightPlayerChoose"
             @reset-player="resetRightPlayer"
           />
-        </div>
       </div>
       <div class="pool" >
         <div class="player-pool">
@@ -95,6 +84,11 @@
               <el-table-column align="center">
                 <template #default="{ row }">
                   <span>{{ row[2] }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column align="center">
+                <template #default="{ row }">
+                  <span>{{ row[3] }}</span>
                 </template>
               </el-table-column>
             </el-table>
@@ -166,97 +160,11 @@ const title = ref("巅峰对决 — 三局赛")
 const store = useStore()
 const router = useRouter()
 
-// 测试数据
-const testData = ref([
-  {
-    playerId: 1,
-    name: "玩家1",
-    isBetter: true,
-    avatar: "/src/assets/001.jpg",
-    firstRoundGroup: 0,
-    isFirstWinner: true,
-    secondRoundScore: 2,
-    secondRoundOrder: 1,
-    isSecondWinner: true,
-    thirdRoundScore: 2,
-    thirdRoundOrder: 0,
-    isThirdWinner: true,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 2,
-    name: "玩家2",
-    isBetter: true,
-    avatar: "/src/assets/002.jpg",
-    firstRoundGroup: 0,
-    isFirstWinner: true,
-    secondRoundScore: 2,
-    secondRoundOrder: 1,
-    isSecondWinner: true,
-    thirdRoundScore: 2,
-    thirdRoundOrder: 0,
-    isThirdWinner: true,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 3,
-    name: "玩家3",
-    isBetter: true,
-    avatar: "/src/assets/003.jpg",
-    firstRoundGroup: 0,
-    isFirstWinner: true,
-    secondRoundScore: 2,
-    secondRoundOrder: 1,
-    isSecondWinner: true,
-    thirdRoundScore: 2,
-    thirdRoundOrder: 0,
-    isThirdWinner: true,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-  {
-    playerId: 4,
-    name: "玩家4",
-    isBetter: true,
-    avatar: "/src/assets/004.jpg",
-    firstRoundGroup: 0,
-    isFirstWinner: true,
-    secondRoundScore: 2,
-    secondRoundOrder: 1,
-    isSecondWinner: true,
-    thirdRoundScore: 2,
-    thirdRoundOrder: 0,
-    isThirdWinner: true,
-    finalScore: 0,
-    finalOrder: 0,
-    isFinalWinner: false
-  },
-])
-
 // BGM 测试数据
-const bgmPool = ref([
-  "Megalovania - Undertale",
-  "One Winged Angel - FF7",
-  "The Only Thing I Know For Real - MGR",
-  "Bury the Light - DMC5",
-  "Red Sun in the Sky - MGR",
-  "It Has To Be This Way - MGR",
-  "Devil Trigger - DMC5",
-  "Rivers in the Desert - P5",
-  "Last Surprise - P5",
-  "Life Will Change - P5",
-  "Take Over - P5R",
-  "I Believe - P5R"
-])
+const bgmPool = ref(store.getters['group/getBgm4'])
 
 // 格式化 BGM 池数据
-const formattedBgmPool = chunkArray(bgmPool.value, 3);
-
+const formattedBgmPool = computed(()=>chunkArray(bgmPool.value, 4));
 
 // 非测试数据来源
 const compGroup = computed(() => {
@@ -349,6 +257,9 @@ const enterFinals = () => {
 
   leftPlayerChooseVisible.value = false
   rightPlayerChooseVisible.value = false
+  console.log(store.getters['group/getBgm5'])
+
+  bgmPool.value = store.getters['group/getBgm5']
 }
 
 

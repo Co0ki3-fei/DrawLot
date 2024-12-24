@@ -9,7 +9,7 @@
             <template #default="{row}">
                 <span>
                     <span :style="{color:'blue',fontWeight: 'bold',textDecoration:'underline',fontStyle:'italic',fontSize:'18px'}">{{ row.winnerPart1 }}</span>
-                    <span :style="{color:'purple',fontWeight: 'bold',fontSize:'18px',paddingLeft:'5%'}">{{ row.winnerPart2.name }}</span>
+                    <span :style="{color:'#eee',fontWeight: 'bold',fontSize:'18px',paddingLeft:'5%'}">{{ row.winnerPart2.name }}</span>
                 </span>
             </template>
         </el-table-column>
@@ -47,6 +47,7 @@
 .winner-list {
     width: 30%;
     padding-bottom: 5%;
+    color: white;
 }
 
 .back-bt {

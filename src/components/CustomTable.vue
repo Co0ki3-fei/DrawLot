@@ -43,7 +43,7 @@ defineProps({
 <style scoped>
 .custom-table-wrapper {
   width: 100%;
-  overflow-x: auto;
+  overflow-x: none;
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   background: rgba(255, 255, 255, 0.05);

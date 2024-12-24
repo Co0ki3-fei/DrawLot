@@ -180,7 +180,7 @@ import CustomTable from '@/components/CustomTable.vue'
 const router = useRouter();
 const store = useStore();
 
-const bgms = computed(() => store.getters['group/getBgm']);
+const bgms = computed(() => store.getters['group/getBgm2']);
 const compGroup = computed(() => store.getters['group/compGroup']);
 console.log(compGroup)
 

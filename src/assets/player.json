@@ -1,194 +1,194 @@
 [
 	{
 		"playerId": 1,
-		"name": "选手1",
-		"isBetter": false,
-		"avatar": "imgs/001.jpg"
+		"name": "节操",
+		"isBetter": true,
+		"avatar": "/imgs/1节操.jpg"
 	},
 	{
 		"playerId": 2,
-		"name": "选手2",
-		"isBetter": false,
-		"avatar": "imgs/002.jpg"
+		"name": "可恶",
+		"isBetter": true,
+		"avatar": "/imgs/2可恶.jpg"
 	},
 	{
 		"playerId": 3,
-		"name": "选手3",
-		"isBetter": false,
-		"avatar": "imgs/003.jpg"
+		"name": "hobo",
+		"isBetter": true,
+		"avatar": "/imgs/3hobo.png"
 	},
 	{
 		"playerId": 4,
-		"name": "选手4",
-		"isBetter": false,
-		"avatar": "imgs/004.jpg"
+		"name": "纳助",
+		"isBetter": true,
+		"avatar": "/imgs/4纳助.jpg"
 	},
 	{
 		"playerId": 5,
-		"name": "选手5",
-		"isBetter": false,
-		"avatar": "imgs/005.jpg"
+		"name": "Aq",
+		"isBetter": true,
+		"avatar": "/imgs/5Aq.jpg"
 	},
 	{
 		"playerId": 6,
-		"name": "选手6",
-		"isBetter": false,
-		"avatar": "imgs/006.jpg"
+		"name": "仞",
+		"isBetter": true,
+		"avatar": "/imgs/6仞.jpg"
 	},
 	{
 		"playerId": 7,
-		"name": "选手7",
-		"isBetter": false,
-		"avatar": "imgs/007.jpg"
+		"name": "嘤花",
+		"isBetter": true,
+		"avatar": "/imgs/7嘤花.jpg"
 	},
 	{
 		"playerId": 8,
-		"name": "选手8",
-		"isBetter": false,
-		"avatar": "imgs/008.jpg"
+		"name": "仪式",
+		"isBetter": true,
+		"avatar": "/imgs/8仪式.jpg"
 	},
 	{
 		"playerId": 9,
-		"name": "选手9",
-		"isBetter": false,
-		"avatar": "imgs/009.jpg"
+		"name": "yoshiteru",
+		"isBetter": true,
+		"avatar": "/imgs/9yoshiteru.jpg"
 	},
 	{
 		"playerId": 10,
-		"name": "选手10",
-		"isBetter": false,
-		"avatar": "imgs/010.jpg"
+		"name": "AHTT",
+		"isBetter": true,
+		"avatar": "/imgs/10AHTT.jpg"
 	},
 	{
 		"playerId": 11,
-		"name": "选手11",
-		"isBetter": false,
-		"avatar": "imgs/011.jpg"
+		"name": "ka9de",
+		"isBetter": true,
+		"avatar": "/imgs/11ka9de.jpg"
 	},
 	{
 		"playerId": 12,
-		"name": "选手12",
-		"isBetter": false,
-		"avatar": "imgs/012.jpg"
+		"name": "弎千",
+		"isBetter": true,
+		"avatar": "/imgs/12弎千.jpg"
 	},
 	{
 		"playerId": 13,
-		"name": "选手13",
-		"isBetter": false,
-		"avatar": "imgs/013.jpg"
+		"name": "030",
+		"isBetter": true,
+		"avatar": "/imgs/13 030.jpg"
 	},
 	{
 		"playerId": 14,
-		"name": "选手14",
-		"isBetter": false,
-		"avatar": "imgs/014.jpg"
+		"name": "akira",
+		"isBetter": true,
+		"avatar": "/imgs/14akira.jpg"
 	},
 	{
 		"playerId": 15,
-		"name": "选手15",
-		"isBetter": false,
-		"avatar": "imgs/015.jpg"
+		"name": "可无",
+		"isBetter": true,
+		"avatar": "/imgs/15可无.jpg"
 	},
 	{
 		"playerId": 16,
-		"name": "选手16",
-		"isBetter": false,
-		"avatar": "imgs/016.jpg"
+		"name": "鸡米花",
+		"isBetter": true,
+		"avatar": "/imgs/16鸡米花.jpg"
 	},
 	{
 		"playerId": 17,
-		"name": "选手17",
-		"isBetter": true,
-		"avatar": "imgs/017.jpg"
+		"name": "壹零",
+		"isBetter": false,
+		"avatar": "/imgs/17壹零.jpg"
 	},
 	{
 		"playerId": 18,
-		"name": "选手18",
-		"isBetter": true,
-		"avatar": "imgs/018.jpg"
+		"name": "文文",
+		"isBetter": false,
+		"avatar": "/imgs/18文文.png"
 	},
 	{
 		"playerId": 19,
-		"name": "选手19",
-		"isBetter": true,
-		"avatar": "imgs/019.jpg"
+		"name": "珩樾",
+		"isBetter": false,
+		"avatar": "/imgs/19珩樾.jpg"
 	},
 	{
 		"playerId": 20,
-		"name": "选手20",
-		"isBetter": true,
-		"avatar": "imgs/020.jpg"
+		"name": "鱼丸",
+		"isBetter": false,
+		"avatar": "/imgs/20鱼丸.jpg"
 	},
 	{
 		"playerId": 21,
-		"name": "选手21",
-		"isBetter": true,
-		"avatar": "imgs/021.jpg"
+		"name": "猫又",
+		"isBetter": false,
+		"avatar": "/imgs/21猫又.jpg"
 	},
 	{
 		"playerId": 22,
-		"name": "选手22",
-		"isBetter": true,
-		"avatar": "imgs/022.jpg"
+		"name": "坑蒙拐骗",
+		"isBetter": false,
+		"avatar": "/imgs/22坑蒙拐骗.jpg"
 	},
 	{
 		"playerId": 23,
-		"name": "选手23",
-		"isBetter": true,
-		"avatar": "imgs/023.jpg"
+		"name": "咸鱼",
+		"isBetter": false,
+		"avatar": "/imgs/23咸鱼.jpg"
 	},
 	{
 		"playerId": 24,
-		"name": "选手24",
-		"isBetter": true,
-		"avatar": "imgs/024.jpg"
+		"name": "琪露诺",
+		"isBetter": false,
+		"avatar": "/imgs/24琪露诺.jpg"
 	},
 	{
 		"playerId": 25,
-		"name": "选手25",
-		"isBetter": true,
-		"avatar": "imgs/025.jpg"
+		"name": "noel",
+		"isBetter": false,
+		"avatar": "/imgs/25noel.jpg"
 	},
 	{
 		"playerId": 26,
-		"name": "选手26",
-		"isBetter": true,
-		"avatar": "imgs/026.jpg"
+		"name": "果绘",
+		"isBetter": false,
+		"avatar": "/imgs/26果绘.jpg"
 	},
 	{
 		"playerId": 27,
-		"name": "选手27",
-		"isBetter": true,
-		"avatar": "imgs/027.jpg"
+		"name": "饿大",
+		"isBetter": false,
+		"avatar": "/imgs/27饿大.jpg"
 	},
 	{
 		"playerId": 28,
-		"name": "选手28",
-		"isBetter": true,
-		"avatar": "imgs/028.jpg"
+		"name": "天冥",
+		"isBetter": false,
+		"avatar": "/imgs/28天冥.jpg"
 	},
 	{
 		"playerId": 29,
-		"name": "选手29",
-		"isBetter": true,
-		"avatar": "imgs/029.jpg"
+		"name": "美洲大镰",
+		"isBetter": false,
+		"avatar": "/imgs/29美洲大镰.jpg"
 	},
 	{
 		"playerId": 30,
-		"name": "选手30",
-		"isBetter": true,
-		"avatar": "imgs/030.jpg"
+		"name": "fz",
+		"isBetter": false,
+		"avatar": "/imgs/30fz.jpg"
 	},
 	{
 		"playerId": 31,
-		"name": "选手31",
-		"isBetter": true,
-		"avatar": "imgs/031.jpg"
+		"name": "nana",
+		"isBetter": false,
+		"avatar": "/imgs/31nana.jpg"
 	},
 	{
 		"playerId": 32,
-		"name": "选手32",
-		"isBetter": true,
-		"avatar": "imgs/032.jpg"
+		"name": "鱼仙",
+		"isBetter": false,
+		"avatar": "/imgs/32鱼仙.jpg"
 	}
 ]

@@ -11,10 +11,13 @@ export default createStore({
         name: '',
         age: null,
       },
-      skillPool: ["skill1", "skill2", "skill3", "skill4", "skill5", "skill6", "skill7", "skill8", "skill9", "skill10", "skill11", "skill12"]
+      skillPool: ["迅速スネイク/迅速蛇", "東北クライシス/东北危机", "ナギナタ/薙刀",
+        "アマテラス（旧）/旧天照", "ラピッドクロウ/迅捷乌鸦", "虎振徹",
+        "メテオロロジスト/星象仪", "ななえる/娜娜艾露", "RAISON/铁塔猫",
+        "キャノン砲/加农炮", "不知火", "ロマンス/Romance"]
     };
   },
-  modules:{
+  modules: {
     group
   },
   mutations: {

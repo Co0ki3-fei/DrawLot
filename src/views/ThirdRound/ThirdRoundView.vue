@@ -123,94 +123,6 @@ const leftPlayer = ref({})  // 初始化为空对象
 const rightPlayer = ref({}) // 初始化为空对象
 const currentGroupIndex = ref(0) // 添加当前组索引
 
-// 测试数据
-const testData = [
- {
-    playerId: 1,
-    name: "选手A1",
-    avatar: "https://example.com/avatar1.jpg",
-    group: 0,  // 第一组
-    secondRoundOrder: 1,  // 组内第一名
-    isSecondWinner: true,
-    thirdRoundScore: 0
-  },
-  {
-    playerId: 2,
-    name: "选手A2",
-    avatar: "https://example.com/avatar2.jpg",
-    group: 0,  // 第一组
-    secondRoundOrder: 2,  // 组内第二名
-    isSecondWinner: true,
-    thirdRoundScore: 0
-  },
-  {
-    playerId: 3,
-    name: "选手B1",
-    avatar: "https://example.com/avatar3.jpg",
-    group: 1,  // 第二组
-    secondRoundOrder: 1,
-    isSecondWinner: true,
-    thirdRoundScore: 0
-  },
-  {
-    playerId: 4,
-    name: "选手B2",
-    avatar: "https://example.com/avatar4.jpg",
-    group: 1,
-    secondRoundOrder: 2,
-    isSecondWinner: true,
-    thirdRoundScore: 0
-  },
-  {
-    playerId: 5,
-    name: "选手C1",
-    avatar: "https://example.com/avatar5.jpg",
-    group: 2,
-    secondRoundOrder: 1,
-    isSecondWinner: true,
-    thirdRoundScore: 0
-  },
-  {
-    playerId: 6,
-    name: "选手C2",
-    avatar: "https://example.com/avatar6.jpg",
-    group: 2,
-    secondRoundOrder: 2,
-    isSecondWinner: true,
-    thirdRoundScore: 0
-  },
-  {
-    playerId: 7,
-    name: "选手D1",
-    avatar: "https://example.com/avatar7.jpg",
-    group: 3,
-    secondRoundOrder: 1,
-    isSecondWinner: true,
-    thirdRoundScore: 0
-  },
-  {
-    playerId: 8,
-    name: "选手D2",
-    avatar: "https://example.com/avatar8.jpg",
-    group: 3,
-    secondRoundOrder: 2,
-    isSecondWinner: true,
-    thirdRoundScore: 0
-  }
-];
-
-// 修改 secondRoundWinners 计算属性为使用测试数据
-// const secondRoundWinners = computed(() => {
-//   return testData
-//     .sort((a, b) => {
-//       if (a.group !== b.group) {
-//         return a.group - b.group;
-//     }
-//     return a.secondRoundOrder - b.secondRoundOrder;
-//   });
-// });
-
-
 
 const secondRoundWinners = computed(() => {
   return store.getters['group/compGroup']
@@ -317,20 +229,7 @@ const nextGroup = () => {
 
 // BGM相关数据
 const currentBgm = ref("点击选择BGM")
-const bgmPool = [
-  "Megalovania - Undertale",
-  "One Winged Angel - FF7",
-  "The Only Thing I Know For Real - MGR",
-  "Bury the Light - DMC5",
-  "Red Sun in the Sky - MGR",
-  "It Has To Be This Way - MGR",
-  "Devil Trigger - DMC5",
-  "Rivers in the Desert - P5",
-  "Last Surprise - P5",
-  "Life Will Change - P5",
-  "Take Over - P5R",
-  "I Believe - P5R"
-]
+const bgmPool = computed(() => store.getters['group/getBgm3'])
 
 // BGM选择处理函数
 const handleBgmSelect = (bgm) => {
@@ -340,11 +239,12 @@ const handleBgmSelect = (bgm) => {
 // BGM池数据格式化
 const formattedBgmPool = computed(() => {
   const rows = []
-  for (let i = 0; i < bgmPool.length; i += 3) {
+  for (let i = 0; i < bgmPool.value.length; i += 4) {
     rows.push({
-      col1: bgmPool[i] || '',
-      col2: bgmPool[i + 1] || '',
-      col3: bgmPool[i + 2] || ''
+      col1: bgmPool.value[i] || '',
+      col2: bgmPool.value[i + 1] || '',
+      col3: bgmPool.value[i + 2] || '',
+      col4:  bgmPool.value[i + 3] || ''
     })
   }
   return rows
@@ -361,7 +261,8 @@ const playerColumns = [
 const bgmColumns = [
   { prop: 'col1', label: '第一列' },
   { prop: 'col2', label: '第二列' },
-  { prop: 'col3', label: '第三列' }
+  { prop: 'col3', label: '第三列' },
+  { prop: 'col4', label: '第四列' }
 ]
 
 </script>
