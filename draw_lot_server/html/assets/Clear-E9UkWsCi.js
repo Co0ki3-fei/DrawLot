@@ -1,1 +1,0 @@
-import{c as o,o as t}from"./index-raWdJXYL.js";const n={__name:"Clear",setup(a){const e=()=>{localStorage.removeItem("vuex")};return(c,r)=>(t(),o("button",{onClick:e},"清除所有比赛进程数据"))}};export{n as default};
