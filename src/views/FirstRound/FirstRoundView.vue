@@ -263,14 +263,6 @@ const skillColumns = [
   font-weight: bold;
 }
 
-.bgm {
-  font-size: 25px;
-  padding-top: 1%;
-  font-weight: bold;
-  font-style: italic;
-  text-decoration: underline
-}
-
 .player-form {
   display: flex;
   width: 100%;

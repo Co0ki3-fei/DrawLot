@@ -9,11 +9,12 @@ const next = () => {
 </script>
 
 <template>
-  <main>
-
-    <span @click="next">初始页面，需要一张主图</span>
-
-
+  <main @click="next" style="width: 100%; height: 100%;">
   </main>
 
 </template>
+
+<style scoped>
+
+
+</style>

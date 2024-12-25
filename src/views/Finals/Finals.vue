@@ -10,7 +10,7 @@
     <div class="body">
       <div class="title fire-text">{{ title }}</div>
       <div class="bgm" @click="showBgmSelect = true">
-        <el-dropdown trigger="click" @command="handleBgmSelect">
+        <el-dropdown size="large" trigger="click" @command="handleBgmSelect">
           <span class="bgm-text">BGM: {{ currentBGM }}</span>
           <template #dropdown>
             <el-dropdown-menu>
@@ -303,14 +303,6 @@ const endGame = () => {
   color: var(--text-color);
 }
 
-.bgm {
-  font-size: 25px;
-  padding-top: 1%;
-  font-weight: bold;
-  font-style: italic;
-  text-decoration: underline;
-  cursor: pointer;
-}
 
 .bgm-text:hover {
   color: #409EFF;

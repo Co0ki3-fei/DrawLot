@@ -18,6 +18,18 @@ import { RouterLink, RouterView } from 'vue-router'
   bottom: 0;
   left: 0;
   width: 100%;
+  background: url(/imgs/background.jpg);
+  background-size: 100% 100%;
+  height: 100%;
+}
+
+.bgm {
+  font-size: 25px;
+  padding-top: 1%;
+  font-weight: bold;
+  font-style: italic;
+  text-decoration: underline;
+  color: #fff;
 }
 
 .fire-text {

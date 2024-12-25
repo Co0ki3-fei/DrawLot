@@ -120,7 +120,6 @@ const getMedalIcon = (index) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: linear-gradient(135deg, var(--el-bg-color) 0%, var(--el-bg-color-overlay) 100%);
   padding: 2rem;
   border-radius: 1rem;
 }
