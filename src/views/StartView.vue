@@ -9,7 +9,7 @@ const next = () => {
 </script>
 
 <template>
-  <main @click="next" style="width: 100%; height: 100%;">
+  <main @click="next" style="width: 100%; height: 100%; background: url(/imgs/main.jpg); background-size: 100% 100%;">
   </main>
 
 </template>
